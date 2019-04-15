@@ -7,8 +7,40 @@
     </url>
 
     <url>
-        <loc>www.dengjiabo.cn/article/hexo-theme-huweihuang/</loc>
-        <lastmod>2019-04-15T09:49:12.049Z</lastmod>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/docker%E7%BD%91%E7%BB%9C/</loc>
+        <lastmod>2019-04-15T11:58:59.063Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/docker%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96/</loc>
+        <lastmod>2019-04-15T11:58:30.914Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/docker%E5%AE%89%E8%A3%85/</loc>
+        <lastmod>2019-04-15T11:57:11.519Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/docker-compose%E5%AE%89%E8%A3%85/</loc>
+        <lastmod>2019-04-15T09:11:46.107Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</loc>
+        <lastmod>2019-04-15T09:11:45.957Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 

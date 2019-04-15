@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>www.dengjiabo.cn</loc>
+        <changefreq>daily</changefreq>
+        <priority>1</priority>
+    </url>
 
     <url>
-        <loc>www.dengjiabo.cn/tags/docker/</loc>
+        <loc>www.dengjiabo.cn/categories/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/</loc>
         <lastmod>2019-04-15T11:58:59.063Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>

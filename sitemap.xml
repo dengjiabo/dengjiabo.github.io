@@ -3,7 +3,7 @@
 
     <sitemap>
         <loc>www.dengjiabo.cn/post-sitemap.xml</loc>
-        <lastmod>2019-04-15T09:49:12.049Z</lastmod>
+        <lastmod>2019-04-15T11:58:59.063Z</lastmod>
     </sitemap>
 
     <sitemap>
@@ -12,8 +12,13 @@
     </sitemap>
 
     <sitemap>
+        <loc>www.dengjiabo.cn/category-sitemap.xml</loc>
+        <lastmod>2019-04-15T11:58:59.063Z</lastmod>
+    </sitemap>
+
+    <sitemap>
         <loc>www.dengjiabo.cn/tag-sitemap.xml</loc>
-        <lastmod>2019-04-15T09:49:12.049Z</lastmod>
+        <lastmod>2019-04-15T11:58:59.063Z</lastmod>
     </sitemap>
 
 </sitemapindex>
