@@ -141,14 +141,14 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -211,20 +211,24 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/docker安装/">
+    <a href="/技术分享/docker数据持久化/">
         <h2 class="post-title">
-            docker安装
+            docker数据持久化
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、centos7安装
-1yum install docker -y
-2、通过二进制安装
-下载docker CE最新稳定版
-Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_64/
-123456789101112131415161718192021222324252627282930313233343536373......
+            1、持久化方法一：使用docker volume完成持久化
+
+Type: volume
+
+1.1、新建volume
+1docker volume create devtest     --devtest是卷名称
+1.2、获取volume
+1docker volume ls                   --查看服务器中的所有卷
+1.3、查看volume基本信息
+1docker volu......
         </div>
     </a>
     
@@ -244,24 +248,20 @@ Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_6
 
 <div class="post-preview">
 
-    <a href="/技术分享/docker数据持久化/">
+    <a href="/技术分享/docker安装/">
         <h2 class="post-title">
-            docker数据持久化
+            docker安装
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、持久化方法一：使用docker volume完成持久化
-
-Type: volume
-
-1.1、新建volume
-1docker volume create devtest     --devtest是卷名称
-1.2、获取volume
-1docker volume ls                   --查看服务器中的所有卷
-1.3、查看volume基本信息
-1docker volu......
+            1、centos7安装
+1yum install docker -y
+2、通过二进制安装
+下载docker CE最新稳定版
+Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_64/
+123456789101112131415161718192021222324252627282930313233343536373......
         </div>
     </a>
     
@@ -477,11 +477,11 @@ docker-compose 是用来做 docker 的多容器控制
     <ul>
       
         <li>
-          <a href="/技术分享/docker安装/">docker安装</a>
+          <a href="/技术分享/docker数据持久化/">docker数据持久化</a>
         </li>
       
         <li>
-          <a href="/技术分享/docker数据持久化/">docker数据持久化</a>
+          <a href="/技术分享/docker安装/">docker安装</a>
         </li>
       
         <li>

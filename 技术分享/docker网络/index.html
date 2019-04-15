@@ -149,14 +149,14 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -226,24 +226,25 @@
 <h3 id="16-修改已经运行的docker连接的network">1.6、修改已经运行的docker连接的network</h3>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker network connect my-bridge test</span><br><span class="line"></span><br><span class="line">my-bridge    --表示network</span><br><span class="line">test         --表示容器名</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">	通过此种方法，test默认在docker0上的连接不会删除，只会在my-bridge这个网桥上新建一个连接</span><br><span class="line">	如果bridge是用户自己创建的，并且连接有多个容器，那么这些容器之间不仅可以通过ping ip，还可以通过ping 容器名，默认容器之间是使用了--link 参数的，可以相互连通。</span><br></pre></td></tr></table></figure>
 <h2 id="2-容器与容器之间的通信">2、容器与容器之间的通信</h2>
-<p><img src="C:%5CUsers%5Cwolffy%5CAppData%5CLocal%5CTemp%5C1555320531937.png" alt="1555320531937"></p>
+<p><img src="C:%5CUsers%5Cwolffy%5CDesktop%5C%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%5Chexo%5Csource_posts%5Cdocker%E7%BD%91%E7%BB%9C%5C%E5%AE%B9%E5%99%A8%E4%B9%8B%E9%97%B4%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1.png" alt="avatar"></p>
 <h3 id="21-docker0">2.1、docker0</h3>
+<p> 默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
 <p>​	默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
 <h3 id="22-vethxxx">2.2、vethxxx</h3>
-<p>​	首先宿主机上创建一对虚拟网卡veth pair设备，veth设备总是成对出现的，形成一个通信通道，数据传输就是基于这个链路的，veth设备常用来连接两个网络设备。</p>
-<p>​	Docker将veth pair设备的一端放在容器中，并命名为eth0,然后将另一端加入docker0网桥中，可以通过brctl show命令查看。</p>
-<p>​	从docker0字网卡中分配一个IP到给容器使用，并设置docker0的IP地址为容器默认网关。</p>
+<p>  首先宿主机上创建一对虚拟网卡veth pair设备，veth设备总是成对出现的，形成一个通信通道，数据传输就是基于这个链路的，veth设备常用来连接两个网络设备。</p>
+<p>  Docker将veth pair设备的一端放在容器中，并命名为eth0,然后将另一端加入docker0网桥中，可以通过brctl show命令查看。</p>
+<p>  从docker0字网卡中分配一个IP到给容器使用，并设置docker0的IP地址为容器默认网关。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec 容器名 ip a		</span><br><span class="line">--可以在容器中看到eth0编号和在本地使用ip a看到的编号相同，表示为同一组veth pair设备</span><br><span class="line">brctl show			--执行此命令可以看到连接到docker0的容器对应的network信息</span><br></pre></td></tr></table></figure>
-<p>​	此时容器IP与宿主机是可以通信的，宿主机也可以访问容器中的ip地址，在bridge模式下，连接同一网桥的容器之间可以相互通信，同时容器可以访问外网，但是其他物理机不能访问docker容器IP，需要通过NAT将容器的IP的port映射为宿主机的IP和port。</p>
+<p>   此时容器IP与宿主机是可以通信的，宿主机也可以访问容器中的ip地址，在bridge模式下，连接同一网桥的容器之间可以相互通信，同时容器可以访问外网，但是其他物理机不能访问docker容器IP，需要通过NAT将容器的IP的port映射为宿主机的IP和port。</p>
 <h2 id="3-容器与外网之间的通信">3、容器与外网之间的通信</h2>
-<p><img src="C:%5CUsers%5Cwolffy%5CAppData%5CLocal%5CTemp%5C1555321234754.png" alt="1555321234754"></p>
+<p><img src="C:%5CUsers%5Cwolffy%5CDesktop%5C%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%5Chexo%5Csource_posts%5Cdocker%E7%BD%91%E7%BB%9C%5C%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%A4%96%E7%BD%91%E9%80%9A%E4%BF%A1.png" alt="avatar"></p>
 <p>1、首先linux主机是可以通过eth0访问外网 internet</p>
 <p>2、容器里面的数据包，要访问外网，会进过docker0 这个bridge。在此处做一个网络地址转换（NAT），转换成eth0的地址，然后作为linux主机的一个数据包被发送到外网，自然就访问了外网。</p>
 <p>3、此处的NAT网络地址转换是通过iptables来实现的。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE</span><br></pre></td></tr></table></figure>
-<p>​	这条规则会将源地址为172.17.0.0/16的包（也就是从Docker容器产生的包），进行源地址转换，转换成主机网卡的地址。这么说可能不太好理解，举一个例子说明一下。</p>
-<p>​	假设主机有一块网卡为eth0，IP地址为10.10.101.105/24，网关为10.10.101.254。从主机上一个IP为172.17.0.1/16的容器中ping百度（180.76.3.151）。IP包首先从容器发往自己的默认网关docker0，包到达docker0后，也就到达了主机上。然后会查询主机的路由表，发现包应该从主机的eth0发往主机的网关10.10.105.254/24。接着包会转发给eth0，并从eth0发出去（主机的ip_forward转发应该已经打开）。这时候，上面的Iptable规则就会起作用，对包做SNAT转换 ( 源地址转换 )，将源地址换为eth0的地址。这样，在外界看来，这个包就是从10.10.101.105上发出来的，Docker容器对外是不可见的。</p>
-<p>​	反之，假如对一个web容器做端口映射，-p 80:80，那么容器启动之后，在iptables规则中则会生成一条类似如下的规则。也就是对包做了一个DNAT转换（目的地址转换），将访问主机80端口的包转换成容器的ip地址，从而发往容器。</p>
+<p>   这条规则会将源地址为172.17.0.0/16的包（也就是从Docker容器产生的包），进行源地址转换，转换成主机网卡的地址。这么说可能不太好理解，举一个例子说明一下。</p>
+<p>   假设主机有一块网卡为eth0，IP地址为10.10.101.105/24，网关为10.10.101.254。从主机上一个IP为172.17.0.1/16的容器中ping百度（180.76.3.151）。IP包首先从容器发往自己的默认网关docker0，包到达docker0后，也就到达了主机上。然后会查询主机的路由表，发现包应该从主机的eth0发往主机的网关10.10.105.254/24。接着包会转发给eth0，并从eth0发出去（主机的ip_forward转发应该已经打开）。这时候，上面的Iptable规则就会起作用，对包做SNAT转换 ( 源地址转换 )，将源地址换为eth0的地址。这样，在外界看来，这个包就是从10.10.101.105上发出来的，Docker容器对外是不可见的。</p>
+<p>   反之，假如对一个web容器做端口映射，-p 80:80，那么容器启动之后，在iptables规则中则会生成一条类似如下的规则。也就是对包做了一个DNAT转换（目的地址转换），将访问主机80端口的包转换成容器的ip地址，从而发往容器。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A DOCKER ! -i docker0 -p tcp -m tcp --dport 80 -j DNAT --to-destination 172.17.0.5:80</span><br></pre></td></tr></table></figure>
 
                 
@@ -253,7 +254,7 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/docker数据持久化/" data-toggle="tooltip" data-placement="top" title="docker数据持久化">&larr; Previous Post</a>
+                            <a href="/技术分享/docker安装/" data-toggle="tooltip" data-placement="top" title="docker安装">&larr; Previous Post</a>
                         </li>
                     
                     
