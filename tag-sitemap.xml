@@ -10,7 +10,14 @@
 
     <url>
         <loc>www.dengjiabo.cn/tags/nextcloud/</loc>
-        <lastmod>2019-04-16T03:56:37.076Z</lastmod>
+        <lastmod>2019-04-16T05:34:32.418Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/tags/kubernetes/</loc>
+        <lastmod>2019-04-16T06:22:01.344Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

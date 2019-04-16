@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          docker网络 - 邓家波 | Blog
+          kubernetes 搭建 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/docker网络/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes 搭建/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>docker网络</h1>
+                        <h1>kubernetes 搭建</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-15
+                            2019-04-16
                         </span>
                     </div>
                 
@@ -212,40 +212,24 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-docker网络基础">1、docker网络基础</h2>
-<h3 id="11-查看docker网络">1.1、查看docker网络</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network ls</span><br></pre></td></tr></table></figure>
-<h3 id="12-查看网络详细信息">1.2、查看网络详细信息</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect		--可以看到当前虚机所有容器、容器所处网段</span><br></pre></td></tr></table></figure>
-<h3 id="13-查看docker网络接口">1.3、查看docker网络接口</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip a					  --可以看到两种接口docker0和vethxxx(两种接口作用暂且不表，下文进行讲解)</span><br></pre></td></tr></table></figure>
-<h3 id="14-新建docker-network">1.4、新建docker network</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker network create -d bridge my-bridge</span><br><span class="line">-d    --指定Driver为bridge</span><br><span class="line">my-bridge	--network名</span><br></pre></td></tr></table></figure>
-<h3 id="15-新建docker时指定bridge">1.5、新建docker时指定bridge</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name test --network my-bridge busybox /bin/sh</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">可以通过brctl show 检测到接口绑定到my-bridge上。</span><br></pre></td></tr></table></figure>
-<h3 id="16-修改已经运行的docker连接的network">1.6、修改已经运行的docker连接的network</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker network connect my-bridge test</span><br><span class="line"></span><br><span class="line">my-bridge    --表示network</span><br><span class="line">test         --表示容器名</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">	通过此种方法，test默认在docker0上的连接不会删除，只会在my-bridge这个网桥上新建一个连接</span><br><span class="line">	如果bridge是用户自己创建的，并且连接有多个容器，那么这些容器之间不仅可以通过ping ip，还可以通过ping 容器名，默认容器之间是使用了--link 参数的，可以相互连通。</span><br></pre></td></tr></table></figure>
-<h2 id="2-容器与容器之间的通信">2、容器与容器之间的通信</h2>
-<img src="/技术分享/docker网络/容器之间网络通信.png" title="docker网络">
-<h3 id="21-docker0">2.1、docker0</h3>
-<p> 默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<p>  默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<h3 id="22-vethxxx">2.2、vethxxx</h3>
-<p>  首先宿主机上创建一对虚拟网卡veth pair设备，veth设备总是成对出现的，形成一个通信通道，数据传输就是基于这个链路的，veth设备常用来连接两个网络设备。</p>
-<p>  Docker将veth pair设备的一端放在容器中，并命名为eth0,然后将另一端加入docker0网桥中，可以通过brctl show命令查看。</p>
-<p>  从docker0字网卡中分配一个IP到给容器使用，并设置docker0的IP地址为容器默认网关。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec 容器名 ip a		</span><br><span class="line">--可以在容器中看到eth0编号和在本地使用ip a看到的编号相同，表示为同一组veth pair设备</span><br><span class="line">brctl show			--执行此命令可以看到连接到docker0的容器对应的network信息</span><br></pre></td></tr></table></figure>
-<p>   此时容器IP与宿主机是可以通信的，宿主机也可以访问容器中的ip地址，在bridge模式下，连接同一网桥的容器之间可以相互通信，同时容器可以访问外网，但是其他物理机不能访问docker容器IP，需要通过NAT将容器的IP的port映射为宿主机的IP和port。</p>
-<h2 id="3-容器与外网之间的通信">3、容器与外网之间的通信</h2>
-<img src="/技术分享/docker网络/容器与外网通信.png" title="docker网络">
-<p>1、首先linux主机是可以通过eth0访问外网 internet</p>
-<p>2、容器里面的数据包，要访问外网，会进过docker0 这个bridge。在此处做一个网络地址转换（NAT），转换成eth0的地址，然后作为linux主机的一个数据包被发送到外网，自然就访问了外网。</p>
-<p>3、此处的NAT网络地址转换是通过iptables来实现的。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE</span><br></pre></td></tr></table></figure>
-<p>   这条规则会将源地址为172.17.0.0/16的包（也就是从Docker容器产生的包），进行源地址转换，转换成主机网卡的地址。这么说可能不太好理解，举一个例子说明一下。</p>
-<p>   假设主机有一块网卡为eth0，IP地址为10.10.101.105/24，网关为10.10.101.254。从主机上一个IP为172.17.0.1/16的容器中ping百度（180.76.3.151）。IP包首先从容器发往自己的默认网关docker0，包到达docker0后，也就到达了主机上。然后会查询主机的路由表，发现包应该从主机的eth0发往主机的网关10.10.105.254/24。接着包会转发给eth0，并从eth0发出去（主机的ip_forward转发应该已经打开）。这时候，上面的Iptable规则就会起作用，对包做SNAT转换 ( 源地址转换 )，将源地址换为eth0的地址。这样，在外界看来，这个包就是从10.10.101.105上发出来的，Docker容器对外是不可见的。</p>
-<p>   反之，假如对一个web容器做端口映射，-p 80:80，那么容器启动之后，在iptables规则中则会生成一条类似如下的规则。也就是对包做了一个DNAT转换（目的地址转换），将访问主机80端口的包转换成容器的ip地址，从而发往容器。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A DOCKER ! -i docker0 -p tcp -m tcp --dport 80 -j DNAT --to-destination 172.17.0.5:80</span><br></pre></td></tr></table></figure>
+                <h2 id="1-使用kubespray搭建">1、使用kubespray搭建</h2>
+<p>  Kubespray是Google开源的一个部署生产级别的Kubernetes服务器集群的开源项目，它整合了Ansible作为部署的工具。</p>
+<h3 id="11-拉取kubespray项目">1.1、拉取kubespray项目</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum install -y python-pip git sshpass</span><br><span class="line"></span><br><span class="line">git clone https://github.com/kubernetes-sigs/kubespray.git</span><br></pre></td></tr></table></figure>
+<h3 id="12-安装基础环境">1.2、安装基础环境</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd kubespray-master &amp;&amp; sudo pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+<h3 id="13-修改镜像源">1.3、修改镜像源</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml</span><br><span class="line">kube_image_repo: &quot;registry.aliyuncs.com/google_containers&quot;		--修改成阿里源</span><br></pre></td></tr></table></figure>
+<h3 id="14-修改其他参数">1.4、修改其他参数</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">vim roles/download/defaults/main.yml</span><br><span class="line">kube_image_repo: &quot;registry.aliyuncs.com/google_containers&quot;    --修改了上面的文件可不用修改此处</span><br><span class="line"></span><br><span class="line">pod_infra_image_repo: &quot;registry.aliyuncs.com/google_containers/pause-&#123;&#123; image_arch &#125;&#125;&quot;    --pause-adm64:3.1</span><br><span class="line"></span><br><span class="line">dashboard_image_repo: &quot;registry.aliyuncs.com/google_containers/kubernetes-dashboard-&#123;&#123; image_arch &#125;&#125;&quot;</span><br><span class="line"></span><br><span class="line">vim inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml    --集群基础配置</span><br><span class="line">kube_proxy_mode: ipvs           --proxy_mode：ipvs，iptables</span><br><span class="line">kube_network_plugin: flannel    --network_plugin：cilium, calico, contiv, weave or flannel</span><br><span class="line">dns_mode: coredns       --dns: dnsmasq_kubedns, kubedns, coredns, coredns_dual, manual or none</span><br><span class="line"></span><br><span class="line">vim inventory/mycluster/group_vars/k8s-cluster/addons.yml    </span><br><span class="line">ingress_nginx_enabled: false            --开启nginx-ingress-controller 插件</span><br><span class="line"></span><br><span class="line">备注：根据各自需求的不同安装不同的插件</span><br></pre></td></tr></table></figure>
+<h3 id="15-修改hostini">1.5、修改host.ini</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim inventory/mycluster/hosts.ini 	--按照模板修改集群信息</span><br></pre></td></tr></table></figure>
+<h3 id="16-搭建">1.6、搭建</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible-playbook -i inventory/mycluster/hosts.ini --become --become-user=root cluster.yml</span><br></pre></td></tr></table></figure>
+<h3 id="17-重置">1.7、重置</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible-playbook -i inventory/mycluster/hosts.ini --become --become-user=root reset.yml</span><br></pre></td></tr></table></figure>
+<h2 id="2-使用kubeadm手动搭建">2、使用kubeadm手动搭建</h2>
+<p>待续。。。</p>
 
                 
 
@@ -253,13 +237,9 @@
                 <!-- Pager -->
                 <ul class="pager">
                     
-                        <li class="previous">
-                            <a href="/技术分享/docker安装/" data-toggle="tooltip" data-placement="top" title="docker安装">&larr; Previous Post</a>
-                        </li>
-                    
                     
                         <li class="next">
-                            <a href="/技术分享/docker数据持久化/" data-toggle="tooltip" data-placement="top" title="docker数据持久化">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes helm/" data-toggle="tooltip" data-placement="top" title="kubernetes helm">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -315,7 +295,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-docker网络基础"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;docker&#x7F51;&#x7EDC;&#x57FA;&#x7840;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-查看docker网络"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x67E5;&#x770B;docker&#x7F51;&#x7EDC;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-查看网络详细信息"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#13-查看docker网络接口"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">1.3&#x3001;&#x67E5;&#x770B;docker&#x7F51;&#x7EDC;&#x63A5;&#x53E3;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#14-新建docker-network"><span class="toc-nav-number">1.4.</span> <span class="toc-nav-text">1.4&#x3001;&#x65B0;&#x5EFA;docker network</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#15-新建docker时指定bridge"><span class="toc-nav-number">1.5.</span> <span class="toc-nav-text">1.5&#x3001;&#x65B0;&#x5EFA;docker&#x65F6;&#x6307;&#x5B9A;bridge</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#16-修改已经运行的docker连接的network"><span class="toc-nav-number">1.6.</span> <span class="toc-nav-text">1.6&#x3001;&#x4FEE;&#x6539;&#x5DF2;&#x7ECF;&#x8FD0;&#x884C;&#x7684;docker&#x8FDE;&#x63A5;&#x7684;network</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-容器与容器之间的通信"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x5BB9;&#x5668;&#x4E0E;&#x5BB9;&#x5668;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x4FE1;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-docker0"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;docker0</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-vethxxx"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;vethxxx</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-容器与外网之间的通信"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x5BB9;&#x5668;&#x4E0E;&#x5916;&#x7F51;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x4FE1;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-使用kubespray搭建"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x4F7F;&#x7528;kubespray&#x642D;&#x5EFA;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-拉取kubespray项目"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x62C9;&#x53D6;kubespray&#x9879;&#x76EE;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-安装基础环境"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x5B89;&#x88C5;&#x57FA;&#x7840;&#x73AF;&#x5883;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#13-修改镜像源"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">1.3&#x3001;&#x4FEE;&#x6539;&#x955C;&#x50CF;&#x6E90;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#14-修改其他参数"><span class="toc-nav-number">1.4.</span> <span class="toc-nav-text">1.4&#x3001;&#x4FEE;&#x6539;&#x5176;&#x4ED6;&#x53C2;&#x6570;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#15-修改hostini"><span class="toc-nav-number">1.5.</span> <span class="toc-nav-text">1.5&#x3001;&#x4FEE;&#x6539;host.ini</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#16-搭建"><span class="toc-nav-number">1.6.</span> <span class="toc-nav-text">1.6&#x3001;&#x642D;&#x5EFA;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#17-重置"><span class="toc-nav-number">1.7.</span> <span class="toc-nav-text">1.7&#x3001;&#x91CD;&#x7F6E;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-使用kubeadm手动搭建"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x4F7F;&#x7528;kubeadm&#x624B;&#x52A8;&#x642D;&#x5EFA;</span></a></li></ol>
         
         </div>
       </aside>
@@ -335,7 +315,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                         
                     </div>
                 </section>

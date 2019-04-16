@@ -142,6 +142,13 @@
 
                         
                         <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
                             <a href="/about/">About</a>
                         </li>
                         
@@ -150,13 +157,6 @@
                         
                         <li>
                             <a href="/tags/">Tags</a>
-                        </li>
-                        
-                    
-
-                        
-                        <li>
-                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
@@ -254,6 +254,12 @@
 <h3 id="6-批量导入用户数据">6、批量导入用户数据</h3>
 <p>  在数据库用有如下两张表，分别对应用户和分组：oc_users、oc_group_user。其中password字段需要进行加密，在不知道加密算法的情况下可以先手动创建一个账号，然后在数据库中得到加密后的密码然后进行批量操作。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#向用户表中插入用户</span><br><span class="line">insert into oc_users(uid,displayname,password,uid_lower) values (&quot;xxx&quot;,&quot;xxx&quot;,&quot;1|$2y$10$zdDV55TifJ6VnxuJMmdSeebFKSl.yVOvWBMfMH3MwVqr0wtTTPF86&quot;,&quot;xxx&quot;);</span><br><span class="line"></span><br><span class="line">#向group表中插入数据，给user分组。在插入分组前需确保oc_groups中已经创建对应的分组</span><br><span class="line">insert into oc_group_user(gid,uid) values (&quot;admin&quot;,&quot;admin&quot;),(&quot;&quot;,&quot;&quot;);</span><br></pre></td></tr></table></figure>
+<h3 id="7-去除或者修改新建用户下的默认文件">7、去除或者修改新建用户下的默认文件</h3>
+<p>  nextcloud新建用户之后，登录会发现有一些默认文件，如下所示：</p>
+<img src="/技术分享/nextcloud搭建个人网盘/nextcloud.png" title="nextcloud搭建个人网盘">
+<p>  在Nextcloud尚未安装时，这些文件存放在core/skeleton目录中，在安装或创建用户时，这些文件将会被自动复制到data/目录中，如果用户删除这些文件的话，是不会影响到core/skeleton中的原文件的。</p>
+<p>  换个思路，如果用自己的文件替换core/skeleton中的内容，就可以自定义新用户默认的文件。</p>
+<p>  同理，删除该目录下的文件，同样会删除新建用户账号下的默认文件。</p>
 
                 
 
@@ -262,7 +268,7 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/docker网络/" data-toggle="tooltip" data-placement="top" title="docker网络">&larr; Previous Post</a>
+                            <a href="/技术分享/docker数据持久化/" data-toggle="tooltip" data-placement="top" title="docker数据持久化">&larr; Previous Post</a>
                         </li>
                     
                     
@@ -323,7 +329,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-搭建基础lnmp环境"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x642D;&#x5EFA;&#x57FA;&#x7840;lnmp&#x73AF;&#x5883;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-修改配置"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x4FEE;&#x6539;&#x914D;&#x7F6E;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-环境测试"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x73AF;&#x5883;&#x6D4B;&#x8BD5;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-下载nextcloud"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x4E0B;&#x8F7D;nextcloud</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-优化"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x4F18;&#x5316;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#51-修改https"><span class="toc-nav-number">5.1.</span> <span class="toc-nav-text">5.1&#x3001;&#x4FEE;&#x6539;https</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#52-插件安装"><span class="toc-nav-number">5.2.</span> <span class="toc-nav-text">5.2&#x3001;&#x63D2;&#x4EF6;&#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#53-插件安装之在线编辑"><span class="toc-nav-number">5.3.</span> <span class="toc-nav-text">5.3&#x3001;&#x63D2;&#x4EF6;&#x5B89;&#x88C5;&#x4E4B;&#x5728;&#x7EBF;&#x7F16;&#x8F91;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#54-挂载外部存储"><span class="toc-nav-number">5.4.</span> <span class="toc-nav-text">5.4&#x3001;&#x6302;&#x8F7D;&#x5916;&#x90E8;&#x5B58;&#x50A8;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-批量导入用户数据"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;&#x6279;&#x91CF;&#x5BFC;&#x5165;&#x7528;&#x6237;&#x6570;&#x636E;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-搭建基础lnmp环境"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x642D;&#x5EFA;&#x57FA;&#x7840;lnmp&#x73AF;&#x5883;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-修改配置"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x4FEE;&#x6539;&#x914D;&#x7F6E;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-环境测试"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x73AF;&#x5883;&#x6D4B;&#x8BD5;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-下载nextcloud"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x4E0B;&#x8F7D;nextcloud</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-优化"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x4F18;&#x5316;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#51-修改https"><span class="toc-nav-number">5.1.</span> <span class="toc-nav-text">5.1&#x3001;&#x4FEE;&#x6539;https</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#52-插件安装"><span class="toc-nav-number">5.2.</span> <span class="toc-nav-text">5.2&#x3001;&#x63D2;&#x4EF6;&#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#53-插件安装之在线编辑"><span class="toc-nav-number">5.3.</span> <span class="toc-nav-text">5.3&#x3001;&#x63D2;&#x4EF6;&#x5B89;&#x88C5;&#x4E4B;&#x5728;&#x7EBF;&#x7F16;&#x8F91;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#54-挂载外部存储"><span class="toc-nav-number">5.4.</span> <span class="toc-nav-text">5.4&#x3001;&#x6302;&#x8F7D;&#x5916;&#x90E8;&#x5B58;&#x50A8;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-批量导入用户数据"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;&#x6279;&#x91CF;&#x5BFC;&#x5165;&#x7528;&#x6237;&#x6570;&#x636E;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7-去除或者修改新建用户下的默认文件"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">7&#x3001;&#x53BB;&#x9664;&#x6216;&#x8005;&#x4FEE;&#x6539;&#x65B0;&#x5EFA;&#x7528;&#x6237;&#x4E0B;&#x7684;&#x9ED8;&#x8BA4;&#x6587;&#x4EF6;</span></a></li></ol>
         
         </div>
       </aside>

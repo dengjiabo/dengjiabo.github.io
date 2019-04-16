@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          docker网络 - 邓家波 | Blog
+          kubernetes helm - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/docker网络/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes helm/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>docker网络</h1>
+                        <h1>kubernetes helm</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-15
+                            2019-04-16
                         </span>
                     </div>
                 
@@ -212,40 +212,47 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-docker网络基础">1、docker网络基础</h2>
-<h3 id="11-查看docker网络">1.1、查看docker网络</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network ls</span><br></pre></td></tr></table></figure>
-<h3 id="12-查看网络详细信息">1.2、查看网络详细信息</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect		--可以看到当前虚机所有容器、容器所处网段</span><br></pre></td></tr></table></figure>
-<h3 id="13-查看docker网络接口">1.3、查看docker网络接口</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip a					  --可以看到两种接口docker0和vethxxx(两种接口作用暂且不表，下文进行讲解)</span><br></pre></td></tr></table></figure>
-<h3 id="14-新建docker-network">1.4、新建docker network</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker network create -d bridge my-bridge</span><br><span class="line">-d    --指定Driver为bridge</span><br><span class="line">my-bridge	--network名</span><br></pre></td></tr></table></figure>
-<h3 id="15-新建docker时指定bridge">1.5、新建docker时指定bridge</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name test --network my-bridge busybox /bin/sh</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">可以通过brctl show 检测到接口绑定到my-bridge上。</span><br></pre></td></tr></table></figure>
-<h3 id="16-修改已经运行的docker连接的network">1.6、修改已经运行的docker连接的network</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker network connect my-bridge test</span><br><span class="line"></span><br><span class="line">my-bridge    --表示network</span><br><span class="line">test         --表示容器名</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">	通过此种方法，test默认在docker0上的连接不会删除，只会在my-bridge这个网桥上新建一个连接</span><br><span class="line">	如果bridge是用户自己创建的，并且连接有多个容器，那么这些容器之间不仅可以通过ping ip，还可以通过ping 容器名，默认容器之间是使用了--link 参数的，可以相互连通。</span><br></pre></td></tr></table></figure>
-<h2 id="2-容器与容器之间的通信">2、容器与容器之间的通信</h2>
-<img src="/技术分享/docker网络/容器之间网络通信.png" title="docker网络">
-<h3 id="21-docker0">2.1、docker0</h3>
-<p> 默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<p>  默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<h3 id="22-vethxxx">2.2、vethxxx</h3>
-<p>  首先宿主机上创建一对虚拟网卡veth pair设备，veth设备总是成对出现的，形成一个通信通道，数据传输就是基于这个链路的，veth设备常用来连接两个网络设备。</p>
-<p>  Docker将veth pair设备的一端放在容器中，并命名为eth0,然后将另一端加入docker0网桥中，可以通过brctl show命令查看。</p>
-<p>  从docker0字网卡中分配一个IP到给容器使用，并设置docker0的IP地址为容器默认网关。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec 容器名 ip a		</span><br><span class="line">--可以在容器中看到eth0编号和在本地使用ip a看到的编号相同，表示为同一组veth pair设备</span><br><span class="line">brctl show			--执行此命令可以看到连接到docker0的容器对应的network信息</span><br></pre></td></tr></table></figure>
-<p>   此时容器IP与宿主机是可以通信的，宿主机也可以访问容器中的ip地址，在bridge模式下，连接同一网桥的容器之间可以相互通信，同时容器可以访问外网，但是其他物理机不能访问docker容器IP，需要通过NAT将容器的IP的port映射为宿主机的IP和port。</p>
-<h2 id="3-容器与外网之间的通信">3、容器与外网之间的通信</h2>
-<img src="/技术分享/docker网络/容器与外网通信.png" title="docker网络">
-<p>1、首先linux主机是可以通过eth0访问外网 internet</p>
-<p>2、容器里面的数据包，要访问外网，会进过docker0 这个bridge。在此处做一个网络地址转换（NAT），转换成eth0的地址，然后作为linux主机的一个数据包被发送到外网，自然就访问了外网。</p>
-<p>3、此处的NAT网络地址转换是通过iptables来实现的。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE</span><br></pre></td></tr></table></figure>
-<p>   这条规则会将源地址为172.17.0.0/16的包（也就是从Docker容器产生的包），进行源地址转换，转换成主机网卡的地址。这么说可能不太好理解，举一个例子说明一下。</p>
-<p>   假设主机有一块网卡为eth0，IP地址为10.10.101.105/24，网关为10.10.101.254。从主机上一个IP为172.17.0.1/16的容器中ping百度（180.76.3.151）。IP包首先从容器发往自己的默认网关docker0，包到达docker0后，也就到达了主机上。然后会查询主机的路由表，发现包应该从主机的eth0发往主机的网关10.10.105.254/24。接着包会转发给eth0，并从eth0发出去（主机的ip_forward转发应该已经打开）。这时候，上面的Iptable规则就会起作用，对包做SNAT转换 ( 源地址转换 )，将源地址换为eth0的地址。这样，在外界看来，这个包就是从10.10.101.105上发出来的，Docker容器对外是不可见的。</p>
-<p>   反之，假如对一个web容器做端口映射，-p 80:80，那么容器启动之后，在iptables规则中则会生成一条类似如下的规则。也就是对包做了一个DNAT转换（目的地址转换），将访问主机80端口的包转换成容器的ip地址，从而发往容器。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A DOCKER ! -i docker0 -p tcp -m tcp --dport 80 -j DNAT --to-destination 172.17.0.5:80</span><br></pre></td></tr></table></figure>
+                <h2 id="1-helm简介">1、helm简介</h2>
+<p>  每个成功的软件平台都有一个优秀的打包系统，比如 Debian、Ubuntu 的 apt，Redhat、Centos 的 yum。而 Helm 则是 Kubernetes 上的包管理器。<br>
+  Helm 有两个重要的概念：chart 和 release。<br>
+  1、chart 是创建一个应用的信息集合，包括各种 Kubernetes 对象的配置模板、参数定义、依赖关系、文档说明等。chart 是应用部署的自包含逻辑单元。可以将 chart 想象成 apt、yum 中的软件安装包。<br>
+  2、release 是 chart 的运行实例，代表了一个正在运行的应用。当 chart 被安装到 Kubernetes 集群，就生成一个 release。chart 能够多次安装到同一个集群，每次安装都是一个 release。</p>
+<p>  Helm 是包管理工具，这里的包就是指的 chart。</p>
+<p>  Helm 包含两个组件：Helm 客户端 和 Tiller 服务器。</p>
+<p>  简单的讲：Helm 客户端负责管理 chart；Tiller 服务器负责管理 release。</p>
+<h2 id="2-helm安装">2、helm安装</h2>
+<h3 id="21-helm-安装">2.1、Helm 安装</h3>
+<blockquote>
+<p>安装helm是在已经搭建好kubernetes的基础上进行</p>
+</blockquote>
+<p>  1、通过官方脚本安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash</span><br><span class="line"></span><br><span class="line">备注：需要访问google</span><br></pre></td></tr></table></figure>
+<p>  2、通过源码包安装</p>
+<p>  在helm官网找到合适的版本下载（amd64）：<a href="https://github.com/helm/helm/releases" target="_blank" rel="noopener">https://github.com/helm/helm/releases</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://storage.googleapis.com/kubernetes-helm/helm-v2.8.2-linux-amd64.tar.gz</span><br><span class="line">tar -zxvf helm-v2.8.2-linux-amd64.tar.gz</span><br><span class="line">cd linux-amd64</span><br><span class="line">cp helm /usr/local/bin/helm</span><br></pre></td></tr></table></figure>
+<h3 id="22-tiller安装">2.2、Tiller安装</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Tiller 服务器安装非常简单，只需要执行 helm init</span><br><span class="line"></span><br><span class="line">备注：Tiller镜像官方镜像在国外，拉取的时候可能失败，需要更换为阿里源</span><br></pre></td></tr></table></figure>
+<p>错误排查：</p>
+<p>1、在安装tiller的过程中，可能会遇到tiller镜像由于网络原因无法下载，当检查到tiller-deploy无法启动的时候，需要修改tiller-deploy对应的镜像，等待tiller镜像启动。（执行命令 helm version的时候会提示没有准备好的	pod，则对应tiller pod没有成功启动）</p>
+<p>2、如果提示 Error: cannot connect to Tiller ，那么需要安装插件 socat</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install socat -y</span><br></pre></td></tr></table></figure>
+<h2 id="3-helm命令">3、helm命令</h2>
+<h3 id="31-查看helm版本">3.1、查看helm版本</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm version</span><br></pre></td></tr></table></figure>
+<h3 id="32-查看当前可安装的chart">3.2、查看当前可安装的chart</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm search mysql</span><br></pre></td></tr></table></figure>
+<h3 id="33-查看helm仓库">3.3、查看helm仓库</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm repo list</span><br></pre></td></tr></table></figure>
+<h3 id="34-添加仓库">3.4、添加仓库</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator</span><br></pre></td></tr></table></figure>
+<h3 id="35-安装应用">3.5、安装应用</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm install stable/mysql</span><br></pre></td></tr></table></figure>
+<h3 id="36-查询安装在本地的release-列表">3.6、查询安装在本地的release 列表</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm ls</span><br></pre></td></tr></table></figure>
+<h3 id="37-删除release">3.7、删除release</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm delete --purge mysql</span><br></pre></td></tr></table></figure>
+<h3 id="38-升级回滚release">3.8、升级回滚release</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 升级</span><br><span class="line">helm upgrade --set mysqlRootPassword=passwd db-mysql stable/mysql</span><br><span class="line"></span><br><span class="line"># 回滚</span><br><span class="line">helm rollback db-mysql 1</span><br></pre></td></tr></table></figure>
 
                 
 
@@ -254,12 +261,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/docker安装/" data-toggle="tooltip" data-placement="top" title="docker安装">&larr; Previous Post</a>
+                            <a href="/技术分享/kubernetes 搭建/" data-toggle="tooltip" data-placement="top" title="kubernetes 搭建">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker数据持久化/" data-toggle="tooltip" data-placement="top" title="docker数据持久化">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes命令集合/" data-toggle="tooltip" data-placement="top" title="kubernetes命令集合">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -315,7 +322,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-docker网络基础"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;docker&#x7F51;&#x7EDC;&#x57FA;&#x7840;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-查看docker网络"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x67E5;&#x770B;docker&#x7F51;&#x7EDC;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-查看网络详细信息"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#13-查看docker网络接口"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">1.3&#x3001;&#x67E5;&#x770B;docker&#x7F51;&#x7EDC;&#x63A5;&#x53E3;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#14-新建docker-network"><span class="toc-nav-number">1.4.</span> <span class="toc-nav-text">1.4&#x3001;&#x65B0;&#x5EFA;docker network</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#15-新建docker时指定bridge"><span class="toc-nav-number">1.5.</span> <span class="toc-nav-text">1.5&#x3001;&#x65B0;&#x5EFA;docker&#x65F6;&#x6307;&#x5B9A;bridge</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#16-修改已经运行的docker连接的network"><span class="toc-nav-number">1.6.</span> <span class="toc-nav-text">1.6&#x3001;&#x4FEE;&#x6539;&#x5DF2;&#x7ECF;&#x8FD0;&#x884C;&#x7684;docker&#x8FDE;&#x63A5;&#x7684;network</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-容器与容器之间的通信"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x5BB9;&#x5668;&#x4E0E;&#x5BB9;&#x5668;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x4FE1;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-docker0"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;docker0</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-vethxxx"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;vethxxx</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-容器与外网之间的通信"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x5BB9;&#x5668;&#x4E0E;&#x5916;&#x7F51;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x4FE1;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-helm简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;helm&#x7B80;&#x4ECB;</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-helm安装"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;helm&#x5B89;&#x88C5;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-helm-安装"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;Helm &#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-tiller安装"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;Tiller&#x5B89;&#x88C5;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-helm命令"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;helm&#x547D;&#x4EE4;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#31-查看helm版本"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">3.1&#x3001;&#x67E5;&#x770B;helm&#x7248;&#x672C;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#32-查看当前可安装的chart"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">3.2&#x3001;&#x67E5;&#x770B;&#x5F53;&#x524D;&#x53EF;&#x5B89;&#x88C5;&#x7684;chart</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#33-查看helm仓库"><span class="toc-nav-number">3.3.</span> <span class="toc-nav-text">3.3&#x3001;&#x67E5;&#x770B;helm&#x4ED3;&#x5E93;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#34-添加仓库"><span class="toc-nav-number">3.4.</span> <span class="toc-nav-text">3.4&#x3001;&#x6DFB;&#x52A0;&#x4ED3;&#x5E93;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#35-安装应用"><span class="toc-nav-number">3.5.</span> <span class="toc-nav-text">3.5&#x3001;&#x5B89;&#x88C5;&#x5E94;&#x7528;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#36-查询安装在本地的release-列表"><span class="toc-nav-number">3.6.</span> <span class="toc-nav-text">3.6&#x3001;&#x67E5;&#x8BE2;&#x5B89;&#x88C5;&#x5728;&#x672C;&#x5730;&#x7684;release &#x5217;&#x8868;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#37-删除release"><span class="toc-nav-number">3.7.</span> <span class="toc-nav-text">3.7&#x3001;&#x5220;&#x9664;release</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#38-升级回滚release"><span class="toc-nav-number">3.8.</span> <span class="toc-nav-text">3.8&#x3001;&#x5347;&#x7EA7;&#x56DE;&#x6EDA;release</span></a></li></ol></li></ol>
         
         </div>
       </aside>
@@ -335,7 +342,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                         
                     </div>
                 </section>

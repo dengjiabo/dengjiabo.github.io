@@ -7,8 +7,32 @@
     </url>
 
     <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/kubernetes%20%E6%90%AD%E5%BB%BA/</loc>
+        <lastmod>2019-04-16T06:22:01.344Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/kubernetes%20helm/</loc>
+        <lastmod>2019-04-16T06:09:47.740Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/kubernetes%E5%91%BD%E4%BB%A4%E9%9B%86%E5%90%88/</loc>
+        <lastmod>2019-04-16T05:53:04.611Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>www.dengjiabo.cn/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/nextcloud%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%9B%98/</loc>
-        <lastmod>2019-04-16T03:56:37.076Z</lastmod>
+        <lastmod>2019-04-16T05:34:32.418Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
