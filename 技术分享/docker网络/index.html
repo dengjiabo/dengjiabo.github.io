@@ -142,14 +142,14 @@
 
                         
                         <li>
-                            <a href="/about/">About</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/about/">About</a>
                         </li>
                         
                     
@@ -226,10 +226,10 @@
 <h3 id="16-修改已经运行的docker连接的network">1.6、修改已经运行的docker连接的network</h3>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker network connect my-bridge test</span><br><span class="line"></span><br><span class="line">my-bridge    --表示network</span><br><span class="line">test         --表示容器名</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">	通过此种方法，test默认在docker0上的连接不会删除，只会在my-bridge这个网桥上新建一个连接</span><br><span class="line">	如果bridge是用户自己创建的，并且连接有多个容器，那么这些容器之间不仅可以通过ping ip，还可以通过ping 容器名，默认容器之间是使用了--link 参数的，可以相互连通。</span><br></pre></td></tr></table></figure>
 <h2 id="2-容器与容器之间的通信">2、容器与容器之间的通信</h2>
-<p><img src="C:%5CUsers%5Cwolffy%5CDesktop%5C%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%5Chexo%5Csource_posts%5Cdocker%E7%BD%91%E7%BB%9C%5C%E5%AE%B9%E5%99%A8%E4%B9%8B%E9%97%B4%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1.png" alt="avatar"></p>
+<p><img src="/docker%E7%BD%91%E7%BB%9C%5C%E5%AE%B9%E5%99%A8%E4%B9%8B%E9%97%B4%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1.png" alt="BP"></p>
 <h3 id="21-docker0">2.1、docker0</h3>
 <p> 默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<p>​	默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
+<p>  默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
 <h3 id="22-vethxxx">2.2、vethxxx</h3>
 <p>  首先宿主机上创建一对虚拟网卡veth pair设备，veth设备总是成对出现的，形成一个通信通道，数据传输就是基于这个链路的，veth设备常用来连接两个网络设备。</p>
 <p>  Docker将veth pair设备的一端放在容器中，并命名为eth0,然后将另一端加入docker0网桥中，可以通过brctl show命令查看。</p>
@@ -237,7 +237,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec 容器名 ip a		</span><br><span class="line">--可以在容器中看到eth0编号和在本地使用ip a看到的编号相同，表示为同一组veth pair设备</span><br><span class="line">brctl show			--执行此命令可以看到连接到docker0的容器对应的network信息</span><br></pre></td></tr></table></figure>
 <p>   此时容器IP与宿主机是可以通信的，宿主机也可以访问容器中的ip地址，在bridge模式下，连接同一网桥的容器之间可以相互通信，同时容器可以访问外网，但是其他物理机不能访问docker容器IP，需要通过NAT将容器的IP的port映射为宿主机的IP和port。</p>
 <h2 id="3-容器与外网之间的通信">3、容器与外网之间的通信</h2>
-<p><img src="C:%5CUsers%5Cwolffy%5CDesktop%5C%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%5Chexo%5Csource_posts%5Cdocker%E7%BD%91%E7%BB%9C%5C%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%A4%96%E7%BD%91%E9%80%9A%E4%BF%A1.png" alt="avatar"></p>
+<p><img src="/docker%E7%BD%91%E7%BB%9C%5C%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%A4%96%E7%BD%91%E9%80%9A%E4%BF%A1.png" alt="BP"></p>
 <p>1、首先linux主机是可以通过eth0访问外网 internet</p>
 <p>2、容器里面的数据包，要访问外网，会进过docker0 这个bridge。在此处做一个网络地址转换（NAT），转换成eth0的地址，然后作为linux主机的一个数据包被发送到外网，自然就访问了外网。</p>
 <p>3、此处的NAT网络地址转换是通过iptables来实现的。</p>
@@ -259,7 +259,7 @@
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker-compose安装/" data-toggle="tooltip" data-placement="top" title="docker-compose安装">Next Post &rarr;</a>
+                            <a href="/技术分享/docker数据持久化/" data-toggle="tooltip" data-placement="top" title="docker数据持久化">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
