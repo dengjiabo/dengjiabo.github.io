@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          docker-compose安装 - 邓家波 | Blog
+          nextcloud搭建个人网盘 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/docker-compose安装/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/nextcloud搭建个人网盘/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,10 +88,10 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#nextcloud" title="nextcloud">nextcloud</a>
                             
                         </div>
-                        <h1>docker-compose安装</h1>
+                        <h1>nextcloud搭建个人网盘</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
@@ -212,14 +212,45 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-什么是docker-compose">1、什么是docker-compose?</h2>
-<p>docker-compose 是一个用来把 docker 自动化的东西<br>
-docker-compose 是用来做 docker 的多容器控制</p>
-<h2 id="2-安装docker-compose">2、安装docker-compose</h2>
-<h3 id="21-二进制安装">2.1、二进制安装</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">下载二进制文件</span><br><span class="line">sudo curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose</span><br><span class="line"></span><br><span class="line">赋予可执行权限</span><br><span class="line">sudo chmod +x /usr/local/bin/docker-compose</span><br><span class="line"></span><br><span class="line">测试安装结果</span><br><span class="line">docker-compose --version</span><br></pre></td></tr></table></figure>
-<h3 id="22-pip安装">2.2、pip安装</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install python-pip</span><br><span class="line">pip install docker-compose</span><br><span class="line">docker-compose version</span><br></pre></td></tr></table></figure>
+                <h3 id="1-搭建基础lnmp环境">1、搭建基础lnmp环境</h3>
+<blockquote>
+<p>此处我用的是lnmp一键安装包，也可以自行搭建lnmp环境</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget http://soft.vpser.net/lnmp/lnmp1.5.tar.gz</span><br><span class="line">tar zxf lnmp1.5.tar.gz &amp;&amp; cd lnmp1.5 &amp;&amp; ./install.sh lnmp</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">mysql选择5.7、php选择7.0以上、其余选择性安装</span><br></pre></td></tr></table></figure>
+<h3 id="2-修改配置">2、修改配置</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">（1）vim /usr/local/php/etc/php-fpm.conf</span><br><span class="line">env[HOSTNAME] = $HOSTNAME</span><br><span class="line">env[PATH] = /usr/local/bin:/usr/bin:/bin</span><br><span class="line">env[TMP] = /tmp</span><br><span class="line">env[TMPDIR] = /tmp</span><br><span class="line">env[TEMP] = /tmp</span><br><span class="line"></span><br><span class="line">（2）vim /usr/local/php/etc/php.ini	--注释掉 disable_functions 否则 没法切换中文。</span><br><span class="line"></span><br><span class="line">（3）cd /home/wwwroot/default		    --删除默认安装的phpmyadmin</span><br><span class="line"></span><br><span class="line">（4）vim /usr/local/nginx/conf/nginx</span><br><span class="line">	将include enable-php.conf;替换为include enable-php-pathinfo.conf;</span><br></pre></td></tr></table></figure>
+<h3 id="3-环境测试">3、环境测试</h3>
+<p>  完成上面的配置之后可以通过http://ip访问得到lnmp首页，接下来则是nextcloud搭建</p>
+<h3 id="4-下载nextcloud">4、下载nextcloud</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">wget https://download.nextcloud.com/server/releases/nextcloud-14.0.7.zip</span><br><span class="line">unzip nextcloud-14.0.7.zip</span><br><span class="line"></span><br><span class="line">复制解压后的nextcloud到目录：/home/wwwroot/default</span><br><span class="line">并且通过下面的链接进行访问测试：</span><br><span class="line">http://ip/nextcloud</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">并最新版本的nextcloud可能不支持某些插件，版本自行选择</span><br></pre></td></tr></table></figure>
+<p>  初次访问的时候，需要配置nextcloud的数据文件目录、mysql数据库等信息。其中nextcloud数据文件目录可以自定义，但是必须保证data目录的权限为770。并且nextcloud需要进行如下的权限设置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chown www nextcloud -Rf</span><br><span class="line">chmod 770 nextcloud -Rf</span><br></pre></td></tr></table></figure>
+<h3 id="5-优化">5、优化</h3>
+<h4 id="51-修改https">5.1、修改https</h4>
+<p>  nginx默认的访问方式是http，并不安全，所以需要修改访问方式为https。</p>
+<p>  修改nginx配置文件，nginx所在目录为：/usr/local/nginx，配置文件名为：nginx.conf。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">        listen 443 ssl;</span><br><span class="line">        #listen [::]:80 default_server ipv6only=on;</span><br><span class="line">        server_name   xxx;</span><br><span class="line">        ssl on;</span><br><span class="line">        ssl_certificate /usr/local/nginx/ssl/server.pem;</span><br><span class="line">        ssl_certificate_key /usr/local/nginx/ssl/server.key;</span><br><span class="line">        location ^~ /loleaflet &#123;</span><br><span class="line">            proxy_pass https://localhost:9980;</span><br><span class="line">            proxy_set_header Host $http_host;</span><br><span class="line">        &#125;</span><br><span class="line">        location ^~ /hosting/discovery &#123;</span><br><span class="line">            proxy_pass https://localhost:9980;</span><br><span class="line">            proxy_set_header Host $http_host;</span><br><span class="line">        &#125;</span><br><span class="line">        location ^~ /lool &#123;</span><br><span class="line">            proxy_pass https://localhost:9980;</span><br><span class="line">            proxy_set_header Upgrade $http_upgrade;</span><br><span class="line">            proxy_set_header Connection &quot;Upgrade&quot;;</span><br><span class="line">            proxy_set_header Host $http_host;</span><br><span class="line">        &#125;</span><br><span class="line">备注：</span><br><span class="line">配置监听端口为443，并配置对应的ssl证书。此处证书可以通过 Let&apos;s Encrypt 生成免费证书。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lnmp start		--修改配置之后重启nginx</span><br></pre></td></tr></table></figure>
+<h4 id="52-插件安装">5.2、插件安装</h4>
+<p>  插件安装有两种方式，自动安装和手动安装。</p>
+<p>  自动安装是进入到nextcloud首页之后在右上角选择应用，在应用市场选择安装合适的应用。</p>
+<p>  手动安装则是在官方应用市场<a href="https://apps.nextcloud.com/" target="_blank" rel="noopener">https://apps.nextcloud.com/</a>下载插件安装包，解压之后放到nextcloud对应的apps目录。另外还需要到我的应用中检查应用是否启动，如果没有启动需要手动启动对应插件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/home/wwwroot/default/nextcloud/apps	--在nextcloud下apps中</span><br></pre></td></tr></table></figure>
+<h4 id="53-插件安装之在线编辑">5.3、插件安装之在线编辑</h4>
+<p>  在线编辑可以实现在nextcloud中编辑修改文件。安装共分为两部分，首先需要在安装插件Collabora Online并启动。</p>
+<p>  然后需要启动在线编辑后台应用，此处使用docker来完成此功能。所以需要提前安装docker，docker安装请参考我的文章：docker安装 <a href="/技术分享/docker安装/" title="docker安装">docker安装</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -d -p 0.0.0.0:9980:9980 -e &apos;domain=xxx\\.xxx\\.com&apos; -e &quot;username=admin&quot; -e &quot;password=123456&quot; --restart always --cap-add MKNOD collabora/code</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">-p 		--端口映射</span><br><span class="line">-e		--配置访问域名、登录用户名、登录密码</span><br><span class="line">等待上面的容器运行成功后，通过下面的链接进行访问：</span><br><span class="line">https://xxx.xxx.com:9980/loleaflet/dist/admin/admin.html</span><br></pre></td></tr></table></figure>
+<p>  最后，在nextcloud主页右上角选择设置，在左侧菜单栏中选择在线协作，在在线协作服务器处配置如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://xxx.xxx.com</span><br></pre></td></tr></table></figure>
+<p>  备注：</p>
+<p>  1、插件Collabora Online安装成功后才会出现在线协作选项</p>
+<p>  2、nextcloud和在线编辑服务器需要保证访问方式一致，均为https或者http。</p>
+<h4 id="54-挂载外部存储">5.4、挂载外部存储</h4>
+<p>  上传到nextcloud的附件是存放在初次访问时设置的data目录中的，可以将此目录挂载到外部存储。保证在服务器挂掉的情况下不会造成文件丢失。</p>
+<blockquote>
+<p>此处选择阿里云NAS作为外部存储，也可以选择OSS或者其他云产品</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#安装nfs</span><br><span class="line">yum -y install nfs-utils rpcbind</span><br><span class="line"></span><br><span class="line">#挂载 (挂载的时候不能直接使用nas根目录作为挂载点)</span><br><span class="line">sudo mount -t nfs -o vers=4.0,noresvport nas挂载点地址:/nextcloud/ /home/wwwroot/default/data</span><br><span class="line"></span><br><span class="line">#取消挂载</span><br><span class="line">sudo umount /home/wwwroot/default/data</span><br><span class="line"></span><br><span class="line">#设置data目录的权限为770</span><br><span class="line"></span><br><span class="line">chmod 770 data</span><br><span class="line">chown www:www data</span><br></pre></td></tr></table></figure>
 
                 
 
@@ -228,12 +259,12 @@ docker-compose 是用来做 docker 的多容器控制</p>
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/docker网络/" data-toggle="tooltip" data-placement="top" title="docker网络">&larr; Previous Post</a>
+                            <a href="/技术分享/docker安装/" data-toggle="tooltip" data-placement="top" title="docker安装">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker常用命令/" data-toggle="tooltip" data-placement="top" title="docker常用命令">Next Post &rarr;</a>
+                            <a href="/技术分享/docker数据持久化/" data-toggle="tooltip" data-placement="top" title="docker数据持久化">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -289,7 +320,7 @@ docker-compose 是用来做 docker 的多容器控制</p>
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-什么是docker-compose"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x4EC0;&#x4E48;&#x662F;docker-compose?</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-安装docker-compose"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x5B89;&#x88C5;docker-compose</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-二进制安装"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x4E8C;&#x8FDB;&#x5236;&#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-pip安装"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;pip&#x5B89;&#x88C5;</span></a></li></ol></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-搭建基础lnmp环境"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x642D;&#x5EFA;&#x57FA;&#x7840;lnmp&#x73AF;&#x5883;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-修改配置"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x4FEE;&#x6539;&#x914D;&#x7F6E;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-环境测试"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x73AF;&#x5883;&#x6D4B;&#x8BD5;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-下载nextcloud"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x4E0B;&#x8F7D;nextcloud</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-优化"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x4F18;&#x5316;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#51-修改https"><span class="toc-nav-number">5.1.</span> <span class="toc-nav-text">5.1&#x3001;&#x4FEE;&#x6539;https</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#52-插件安装"><span class="toc-nav-number">5.2.</span> <span class="toc-nav-text">5.2&#x3001;&#x63D2;&#x4EF6;&#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#53-插件安装之在线编辑"><span class="toc-nav-number">5.3.</span> <span class="toc-nav-text">5.3&#x3001;&#x63D2;&#x4EF6;&#x5B89;&#x88C5;&#x4E4B;&#x5728;&#x7EBF;&#x7F16;&#x8F91;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#54-挂载外部存储"><span class="toc-nav-number">5.4.</span> <span class="toc-nav-text">5.4&#x3001;&#x6302;&#x8F7D;&#x5916;&#x90E8;&#x5B58;&#x50A8;</span></a></li></ol></li></ol>
         
         </div>
       </aside>
@@ -309,7 +340,7 @@ docker-compose 是用来做 docker 的多容器控制</p>
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#nextcloud" title="nextcloud">nextcloud</a>
                         
                     </div>
                 </section>
