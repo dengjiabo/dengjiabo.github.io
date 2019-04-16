@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          harbor安装 - 邓家波 | Blog
+          kubernetes核心服务 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/harbor安装/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes核心服务/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,10 +88,10 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>harbor安装</h1>
+                        <h1>kubernetes核心服务</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
@@ -212,26 +212,50 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-harbor简介">1、harbor简介</h2>
-<p>  harbor是什么呢？简单来说，容器是集装箱，集装箱放哪里呢？对，港湾！官方的说法是：Harbor是一个用于存储和分发Docker镜像的企业级Registry服务器。</p>
-<h3 id="11-基于角色的访问控制rbac">1.1、基于角色的访问控制，RBAC</h3>
-<p>  用户分为三种角色：项目管理员（MDRWS）、开发人员（RWS）和访客（RS），当然还有一个最高管理员权限admin系统管理员。</p>
-<p>  上面的简称大概说一下，M:管理、D:删除、R:读取、W:写入、S:查询，非常细致的权限管理体系。当然一个用户可以在不同的项目里面扮演不同角色，这个和现实的用户管理体系非常吻合。</p>
-<h3 id="12-项目管理">1.2、项目管理</h3>
-<p>  和资源管理的单元划分。一个项目下面有多个镜像仓库，并且关联多个不同角色的成员，镜像复制也是基于项目的，通过添加复制规则，可以将项目下面的镜像从一个harbor迁移到另一个harbor，并且可以通过日志查看复制过程，并有retry机制。</p>
-<h2 id="2-harbor安装">2、harbor安装</h2>
-<h3 id="21-下载安装包">2.1、下载安装包</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="22-解压">2.2、解压</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="23-配置harbor">2.3、配置harbor</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim harbor.cfg</span><br><span class="line">说明：参数修改中至少需要修改hostname ，配置为具体的服务器公网IP</span><br></pre></td></tr></table></figure>
-<h3 id="24-启动">2.4、启动</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./install.sh	--如果启动之后没有报错，那么可以将公网IP复制到浏览器中进行访问 admin/Harbor12345 </span><br><span class="line">( 初始化账号密码，可在harbor.cfg中进行配置 )</span><br></pre></td></tr></table></figure>
-<h3 id="25-安装docker-compose">2.5、安装docker-compose</h3>
-<p>详情参考我的文章：<a href="/技术分享/docker-compose安装/" title="docker-compose安装">docker-compose安装</a></p>
-<h3 id="26-启停服务">2.6、启停服务</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker-compose stop			--停止harbor服务</span><br><span class="line">sudo docker-compose start			--启动harbor服务</span><br></pre></td></tr></table></figure>
+                <h3 id="1-etcd-主节点">1、ETCD （主节点）</h3>
+<p>  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。</p>
+<p>（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接的读取，写入数据到etcd（增强乐观锁机制，保证集群状态的一致性，减少出错可能；把实际存储从其他组件剥离，替换容易）</p>
+<p>（2）、通过etcdctl命令查看存储的资源可以发现：所有资源都是以JSON格式存储到etcd中的。可以想象成把资源以json格式存储到文件系统中。</p>
+<p>（3）、确保集群一致性：一致性算法：要求集群大部分节点（一半以上）参与才能进入到下一状态：三个节点的etcd集群，必须同时有两个存活才能参与到下一状态。</p>
+<h3 id="2-apiserver主节点">2、APIServer（主节点）</h3>
+<p>  kube-apiserver是Kubernetes最重要的核心组件之一，主要提供以下的功能：</p>
+<p>  提供集群管理的REST API接口，包括认证授权（我们现在没有用到）数据校验以及集群状态变更等- 提供其他模块之间的数据交互和通信的枢纽（其他模块通过API Server查询或修改数据，只有API Server才直接操作etcd）- 生产环境为了保证apiserver的高可用一般会部署2+个节点，在上层做一个lb做负载均衡，比如haproxy<br>
+如果apiserver服务挂掉，可能会导致某个服务无法访问。</p>
+<p>（1）、kubernetes系统组件之间只能通过api server进行通信，他们之间不会直接通信。（2）、以RESTflAPI的形式提供了查询、修改集群状态的CRUD(Create、Read、 Update、 Delete)接口。 它将状态存储到etcd中。（3）、 API服务器的客户端之 一就是命令行工具kubectl。（4）、api server客户端处理步骤：通过授权插件授权客户端（kubectl）、通过准入控制插件验证 AND/OR 修改资源请求（准入控制插件包括： AlwaysPullImages、ServiceAccount、NamespaceLifecycle、ResourceQuota等）、验证资源以及持久化存储（5）、api server如何通知客户端资源变更：</p>
+<p>  当你创建一个ReplicaSet资源时，它不会去创建pod, 同时它不会去管理服务的端点。那是控制器管理器的工作。</p>
+<p>  API 服务器甚至也没有告诉这些控制器去做什么。它做的就是，启动这些控制器，以及其他一些组件来监控己部署资源的变更。</p>
+<p>  客户端通过创建到 API 服务器的 HTTP 连接来监听变更。通过此连接，客户端会接收到监听对象的 一 系列变更通知。</p>
+<h3 id="3-controllermanager主节点">3、ControllerManager（主节点）</h3>
+<p>  Controller Manager由kube-controller-manager和cloud-controller-manager组成，是Kubernetes的大脑，它通过apiserver监控整个集群的状态，并确保集群处于预期的工作状态。</p>
+<p>（1）、kube-controller-manager由一系列的控制器组成，像Replication Controller、Node Controller、Deployment Controller、ReplicaSet DaemonSet Job Controller、StatefulSet Controller、Service Controller、Endpoint Controller、Namespace Controller、PersistentVolume Controller等。</p>
+<p>（2）、controller-manager、scheduler和apiserver 三者的功能紧密相关，一般运行在同一个机器上，我们可以把它们当做一个整体来看，所以保证了apiserver的高可用即是保证了三个模块的高可用。也可以同时启动多个controller-manager进程，但只有一个会被选举为leader提供服务。</p>
+<p>（3）、 控制器执行一个 “ 调和 “ 循环， 将实际状态调整为期望状态（在资源 spec 部分定义）， 然后将新的实际状态写入资源的 status 部分。</p>
+<p>（4）、不同控制器之间不会直接通信， 它们甚至不知道其他控制器的存在。 每个控制器都连接到 API 服务器， 通过监听机制， 请求订阅该控制器负责的一系列资源的变更。</p>
+<p>（5）、 控制器不会直接运行 pod,而是将 pod 定义到发布 API server ，让 Kubelet 创建容器并运行 。</p>
+<h3 id="4-scheduler主节点">4、Scheduler（主节点）</h3>
+<p>  kube-scheduler只负责分配调度Pod到集群内的节点上，它监听kube-apiserver，查询还未分配Node的Pod，然后根据调度策略为这些Pod分配节点。我们前面讲到的kubernetes的各种调度策略就是它实现的。</p>
+<p>（1）、过滤所有节点，找出能分配给pod的可用节点列表。</p>
+<p>（2）、对可用节点按照优先级进行排序，找出最优节点。</p>
+<p>（3）、如果多个节点有最高的优先级分数，那么则循环分配，确保平均分配给pod。</p>
+<p>（4）、可以使用自定义调度器。。</p>
+<h3 id="5-kubectl命令行工具任意master节点">5、kubectl命令行工具（任意master节点）</h3>
+<p>  kubectl是Kubernetes的命令行工具，是Kubernetes用户和管理员必备的管理工具。kubectl提供了大量的子命令，方便管理Kubernetes集群中的各种功能。</p>
+<p>  使用kubectl的第一步是配置Kubernetes集群以及认证方式，包括：</p>
+<ul>
+<li>cluster信息：api-server地址</li>
+<li>用户信息：用户名、密码或密钥</li>
+<li>Context：cluster、用户信息以及Namespace的组合</li>
+</ul>
+<h3 id="6-kubelet工作节点">6、kubelet（工作节点）</h3>
+<p>  每个工作节点上都运行一个kubelet服务进程，默认监听10250端口，接收并执行master发来的指令，管理Pod及Pod中的容器。每个kubelet进程会在API Server上注册节点自身信息，定期向master节点汇报节点的资源使用情况，并通过cAdvisor监控节点和容器的资源。</p>
+<p>（1）、创建Node资源并向api server注册该节点。</p>
+<p>（2）、持续监控api server是否把该节点分配给pod，然后启动pod容器。（具体实现方式是告知配置好的容器运行时docker来从特定的容器镜像运行容器）</p>
+<p>（3）、kubelet随后会持续监控运行的容器，并向api server报告他们的状态、事件和资源消耗。</p>
+<p>（4）、kubelet也是容器存活探针的组件，当探针报错时会重启容器。</p>
+<p>（5）、当pod从api server删除时，kubelet会删除容器，并通知api server pod已经被停止。</p>
+<h3 id="7-为集群增加service功能-kube-proxy工作节点">7、为集群增加service功能 – kube-proxy（工作节点）</h3>
+<p>  每台工作节点上都应该运行一个kube-proxy服务，它监听API server中service和endpoint的变化情况，并通过iptables等来为服务配置负载均衡，是让我们的服务在集群外可以被访问到的重要方式。</p>
+<p>  确保客户端可以通过Kubemetes API 连接到你定义的服务。kube-proxy 确保对服务 IP 和端口的连接最终能到达支持服务（或者其他，非 pod 服务终端）的某个 pod 处。</p>
 
                 
 
@@ -240,12 +264,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/kubernetes命令集合/" data-toggle="tooltip" data-placement="top" title="kubernetes命令集合">&larr; Previous Post</a>
+                            <a href="/技术分享/kubernetes helm/" data-toggle="tooltip" data-placement="top" title="kubernetes helm">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker安装/" data-toggle="tooltip" data-placement="top" title="docker安装">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes命令集合/" data-toggle="tooltip" data-placement="top" title="kubernetes命令集合">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -320,7 +344,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-harbor简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;harbor&#x7B80;&#x4ECB;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-基于角色的访问控制rbac"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x57FA;&#x4E8E;&#x89D2;&#x8272;&#x7684;&#x8BBF;&#x95EE;&#x63A7;&#x5236;&#xFF0C;RBAC</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-项目管理"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x9879;&#x76EE;&#x7BA1;&#x7406;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-harbor安装"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;harbor&#x5B89;&#x88C5;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-下载安装包"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x4E0B;&#x8F7D;&#x5B89;&#x88C5;&#x5305;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-解压"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;&#x89E3;&#x538B;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#23-配置harbor"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">2.3&#x3001;&#x914D;&#x7F6E;harbor</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#24-启动"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">2.4&#x3001;&#x542F;&#x52A8;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#25-安装docker-compose"><span class="toc-nav-number">2.5.</span> <span class="toc-nav-text">2.5&#x3001;&#x5B89;&#x88C5;docker-compose</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#26-启停服务"><span class="toc-nav-number">2.6.</span> <span class="toc-nav-text">2.6&#x3001;&#x542F;&#x505C;&#x670D;&#x52A1;</span></a></li></ol></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-etcd-主节点"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;ETCD &#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-apiserver主节点"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;APIServer&#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-controllermanager主节点"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;ControllerManager&#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-scheduler主节点"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;Scheduler&#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-kubectl命令行工具任意master节点"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;kubectl&#x547D;&#x4EE4;&#x884C;&#x5DE5;&#x5177;&#xFF08;&#x4EFB;&#x610F;master&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-kubelet工作节点"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;kubelet&#xFF08;&#x5DE5;&#x4F5C;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7-为集群增加service功能-kube-proxy工作节点"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">7&#x3001;&#x4E3A;&#x96C6;&#x7FA4;&#x589E;&#x52A0;service&#x529F;&#x80FD; &#x2013; kube-proxy&#xFF08;&#x5DE5;&#x4F5C;&#x8282;&#x70B9;&#xFF09;</span></a></li></ol>
         
         </div>
       </aside>
@@ -340,7 +364,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                         
                     </div>
                 </section>
