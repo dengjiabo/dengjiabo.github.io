@@ -134,13 +134,6 @@
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
-                        </li>
-                        
-                    
-
-                        
-                        <li>
                             <a href="/about/">About</a>
                         </li>
                         
@@ -149,6 +142,13 @@
                         
                         <li>
                             <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
@@ -208,6 +208,133 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes高级调度策略/">
+        <h2 class="post-title">
+            kubernetes 高级调度策略
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、节点选择器（nodeSelector）
+  nodeSelector是目前最为简单的一种pod运行时调度限制，目前在Kubernetes1.7.x及以下版本可用。Pod.spec.nodeSelector通过kubernetes的label-selector机制选择节点，由调度器调度策略匹配label，而后调度pod到目标节点，该匹配规则属于强制约束。
+12345678910111213......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-17
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes健康检查/">
+        <h2 class="post-title">
+            kubernetes 健康检查
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、健康检查探针
+1.1、HTTP GET探针
+  HTTP GET探针对容器的 IP 地址（你指定的端口和路径）执行 HTTP GET 请求。
+  如果探测器收到响应，并且响应状态码不代表错误（换句话说，如果HTTP响应状态码是2xx或3xx), 则认为探测成功。如果服务器返回错误响应状态码或者根本没有响应，那么探测就被认为是失败的，容器将被重新启动。
+1234livenessProbe:......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-17
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetesAPIServer/">
+        <h2 class="post-title">
+            kubernetes API Server
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、如何访问 kubernetes API ？
+1.1、本地端口
+（1）、该端口用于接收HTTP请求
+（2）、该端口默认值为8080，可以通过API Server的启动参数“–insecure-port”的值来修改默认值
+（3）、默认的IP地址为“localhost”，可以通过启动参数“–insecure-bind-address”的值来修改该IP地址
+（4）、非认证或授权的HTTP请求通过......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-17
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes插件/">
+        <h2 class="post-title">
+            kubernetes 插件
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、flannel 网络插件
+  为了实现不同node上的Pod通信，必须实现以下两点：
+（1）、 对k8s集群中所有node上的pod做IP规划，防止IP冲突。因为Pod之间通过Pod IP通信。
+（2）、保存规划的Pod IP与node IP映射关系。因为说到底node之间是通过node IP通信。
+  数据包从docker0出来，转发给flannel，flannel根据目标Pod IP......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-17
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -273,17 +400,16 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes核心服务/">
+    <a href="/技术分享/kubernetes命令集合/">
         <h2 class="post-title">
-            kubernetes核心服务
+            kubernetes命令集合
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、ETCD （主节点）
-  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
-（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
+            1、获取kubernetes资源
+12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
         </div>
     </a>
     
@@ -303,16 +429,17 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes命令集合/">
+    <a href="/技术分享/kubernetes核心服务/">
         <h2 class="post-title">
-            kubernetes命令集合
+            kubernetes核心服务
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、获取kubernetes资源
-12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
+            1、ETCD （主节点）
+  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
+（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
         </div>
     </a>
     
@@ -364,76 +491,6 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/docker安装/">
-        <h2 class="post-title">
-            docker安装
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、centos7安装
-1yum install docker -y
-2、通过二进制安装
-下载docker CE最新稳定版
-Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_64/
-123456789101112131415161718192021222324252627282930313233343536373......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#docker" title="docker">docker</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/docker数据持久化/">
-        <h2 class="post-title">
-            docker数据持久化
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、持久化方法一：使用docker volume完成持久化
-
-Type: volume
-
-1.1、新建volume
-1docker volume create devtest     --devtest是卷名称
-1.2、获取volume
-1docker volume ls                   --查看服务器中的所有卷
-1.3、查看volume基本信息
-1docker volu......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#docker" title="docker">docker</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
     <a href="/技术分享/docker网络/">
         <h2 class="post-title">
             docker网络
@@ -450,71 +507,6 @@ Type: volume
 1.3、查看docker网络接口
 1ip a					  --可以看到两种接口docker0和vethxxx(两种接口作用暂且不表，下文进行讲解)
 1.4、新建docker net......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#docker" title="docker">docker</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/nextcloud搭建个人网盘/">
-        <h2 class="post-title">
-            nextcloud搭建个人网盘
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、搭建基础lnmp环境
-
-此处我用的是lnmp一键安装包，也可以自行搭建lnmp环境
-
-12345wget http://soft.vpser.net/lnmp/lnmp1.5.tar.gztar zxf lnmp1.5.tar.gz &amp;&amp; cd lnmp1.5 &amp;&amp; ./install.sh lnmp备注：mysql选择5.7、php选择7.0以上、其余选......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#nextcloud" title="nextcloud">nextcloud</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/docker-compose安装/">
-        <h2 class="post-title">
-            docker-compose安装
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、什么是docker-compose?
-docker-compose 是一个用来把 docker 自动化的东西
-docker-compose 是用来做 docker 的多容器控制
-2、安装docker-compose
-2.1、二进制安装
-12345678下载二进制文件sudo curl -L https://github.com/docker/compose/releases/downlo......
         </div>
     </a>
     
@@ -577,7 +569,7 @@ docker-compose 是用来做 docker 的多容器控制
             
         
             
-            <a href="/tags/#kubernetes" title="kubernetes" rel="4">kubernetes</a>
+            <a href="/tags/#kubernetes" title="kubernetes" rel="8">kubernetes</a>
             
         
             
@@ -635,23 +627,23 @@ docker-compose 是用来做 docker 的多容器控制
     <ul>
       
         <li>
+          <a href="/技术分享/kubernetes高级调度策略/">kubernetes 高级调度策略</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/kubernetes健康检查/">kubernetes 健康检查</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/kubernetesAPIServer/">kubernetes API Server</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/kubernetes插件/">kubernetes 插件</a>
+        </li>
+      
+        <li>
           <a href="/技术分享/kubernetes 搭建/">kubernetes 搭建</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes helm/">kubernetes helm</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes核心服务/">kubernetes核心服务</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes命令集合/">kubernetes命令集合</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/harbor安装/">harbor安装</a>
         </li>
       
     </ul>
@@ -666,7 +658,7 @@ docker-compose 是用来做 docker 的多容器控制
         
     <h5>ARCHIVES</h5>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">11</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">15</span></li></ul>
     </div>
 
         <hr>
@@ -675,7 +667,7 @@ docker-compose 是用来做 docker 的多容器控制
 
     <h5>categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">11</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">15</span></li></ul>
     </div>
 
         <hr>

@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          harbor安装 - 邓家波 | Blog
+          kubernetes 插件 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/harbor安装/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes插件/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>harbor安装</h1>
+                        <h1>kubernetes 插件</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-16
+                            2019-04-17
                         </span>
                     </div>
                 
@@ -212,26 +212,42 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-harbor简介">1、harbor简介</h2>
-<p>  harbor是什么呢？简单来说，容器是集装箱，集装箱放哪里呢？对，港湾！官方的说法是：Harbor是一个用于存储和分发Docker镜像的企业级Registry服务器。</p>
-<h3 id="11-基于角色的访问控制rbac">1.1、基于角色的访问控制，RBAC</h3>
-<p>  用户分为三种角色：项目管理员（MDRWS）、开发人员（RWS）和访客（RS），当然还有一个最高管理员权限admin系统管理员。</p>
-<p>  上面的简称大概说一下，M:管理、D:删除、R:读取、W:写入、S:查询，非常细致的权限管理体系。当然一个用户可以在不同的项目里面扮演不同角色，这个和现实的用户管理体系非常吻合。</p>
-<h3 id="12-项目管理">1.2、项目管理</h3>
-<p>  和资源管理的单元划分。一个项目下面有多个镜像仓库，并且关联多个不同角色的成员，镜像复制也是基于项目的，通过添加复制规则，可以将项目下面的镜像从一个harbor迁移到另一个harbor，并且可以通过日志查看复制过程，并有retry机制。</p>
-<h2 id="2-harbor安装">2、harbor安装</h2>
-<h3 id="21-下载安装包">2.1、下载安装包</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="22-解压">2.2、解压</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="23-配置harbor">2.3、配置harbor</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim harbor.cfg</span><br><span class="line">说明：参数修改中至少需要修改hostname ，配置为具体的服务器公网IP</span><br></pre></td></tr></table></figure>
-<h3 id="24-启动">2.4、启动</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./install.sh	--如果启动之后没有报错，那么可以将公网IP复制到浏览器中进行访问 admin/Harbor12345 </span><br><span class="line">( 初始化账号密码，可在harbor.cfg中进行配置 )</span><br></pre></td></tr></table></figure>
-<h3 id="25-安装docker-compose">2.5、安装docker-compose</h3>
-<p>详情参考我的文章：<a href="/技术分享/docker-compose安装/" title="docker-compose安装">docker-compose安装</a></p>
-<h3 id="26-启停服务">2.6、启停服务</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker-compose stop			--停止harbor服务</span><br><span class="line">sudo docker-compose start			--启动harbor服务</span><br></pre></td></tr></table></figure>
+                <h3 id="1-flannel-网络插件">1、flannel 网络插件</h3>
+<p>  为了实现不同node上的Pod通信，必须实现以下两点：</p>
+<p>（1）、 对k8s集群中所有node上的pod做IP规划，防止IP冲突。因为Pod之间通过Pod IP通信。</p>
+<p>（2）、保存规划的Pod IP与node IP映射关系。因为说到底node之间是通过node IP通信。</p>
+<p>  数据包从docker0出来，转发给flannel，flannel根据目标Pod IP查询对应node IP，然后发送给对应node上的flannel，对端flannel收到数据包之后再转发docker0。</p>
+<img src="/技术分享/kubernetes插件/flannel.png" title="kubernetes插件">
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml						 --部署yaml</span><br><span class="line">cat /run/flannel/subnet.env        --查看flannel配置</span><br></pre></td></tr></table></figure>
+<h3 id="2-kube-proxy">2、kube proxy</h3>
+<p>  其核心功能是将某个service的访问请求转发到后端的某个Pod上。</p>
+<p>  kube proxy运行在集群中的每一个节点上，专门用于访问service的路由。当在集群内部访问某个service时，就是由它将集群IP映射成pod IP，或者说将流量转发到运行中的pod实例上，如果存在多个pod实例，kube proxy同时也会负责负载均衡。</p>
+<p>  由云服务商提供的负载均衡器，在创建service时，如果指定其类型为LoadBalancer，则对服务的代理、负载均衡将会绕过默认的kube proxy，而是由设定的外部云服务商提供的负载均衡器负责。</p>
+<p>  kube-proxy在1.8之后就增加了ipvs模式，代替了以前的iptables模式：</p>
+<p>  在k8s中，提供相同服务的一组pod可以抽象成一个service，通过service提供的统一入口对外提供服务，每个service都有一个虚拟IP地址（clusterip）和端口号供客户端访问。</p>
+<p>  Kube-proxy存在于各个node节点上，主要用于Service功能的实现，具体来说，就是实现集群内的客户端pod访问service，或者是集群外的主机通过NodePort等方式访问service。</p>
+<p>  kube-proxy默认使用的是iptables模式，通过各个node节点上的iptables规则来实现service的负载均衡，但是随着service数量的增大，iptables模式由于线性查找匹配、全量更新等特点，其性能会显著下降。</p>
+<p>  从k8s的1.8版本开始，kube-proxy引入了IPVS模式，IPVS模式与iptables同样基于Netfilter，但是采用的hash表，因此当service数量达到一定规模时，hash查表的速度优势就会显现出来，从而提高service的服务性能。</p>
+<h3 id="3-kube-lego">3、kube-lego</h3>
+<p>  可以通过该插件实现https证书自动更新。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/jetstack/kube-lego		--官方github</span><br><span class="line"></span><br><span class="line">(1)、首先在ingress中添加下面这行配置</span><br><span class="line">metadata:</span><br><span class="line">  annotations:</span><br><span class="line">    kubernetes.io/tls-acme: &quot;true&quot;			--在注解中添加此行</span><br><span class="line"></span><br><span class="line">(2)、其次配置证书信息</span><br><span class="line">  tls:</span><br><span class="line">  - hosts:</span><br><span class="line">    - xxx.xxx.com</span><br><span class="line">    secretName: prod-tls            --注意secret名字不能重复</span><br></pre></td></tr></table></figure>
+<h3 id="4-kube-dns-内部dns">4、kube-dns （ 内部DNS ）</h3>
+<p>  应用能够直接使用服务的名字，不需要关心它实际的 ip 地址，中间的转换能够自动完成。名字和 ip 之间的转换就是 DNS 系统的功能，因此 kubernetes 也提供了 DNS 方法来解决这个问题。</p>
+<p>  kubernetes 对外提供的 DNS 服务是一致的。每个 service 都会有对应的 DNS 记录，kubernetes 保存 DNS 记录的格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;service_name&gt;.&lt;namespace&gt;.svc.&lt;domain&gt;</span><br><span class="line"></span><br><span class="line">每个部分的字段意思：</span><br><span class="line">* service_name: 服务名称，就是定义 service 的时候取的名字</span><br><span class="line">* namespace：service 所在 namespace 的名字</span><br><span class="line">* domain：提供的域名后缀，比如默认的 cluster.local</span><br><span class="line"></span><br><span class="line">--在 pod 中可以通过 service_name.namespace.svc.domain 来访问任何的服务，也可以使用缩写 service_name.namespace，如果 pod 和 service 在同一个 namespace，甚至可以直接使用 service_name。</span><br><span class="line"></span><br><span class="line">--如果是headless类型的service,那么通过service_name.namespace.svc.domain来访问服务，得到的是pod 列表。</span><br></pre></td></tr></table></figure>
+<p>  在最新版本的k8s中，已经将该插件更新成coredns。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">dns 解析测试</span><br><span class="line"></span><br><span class="line">（1）、通过exec命令进入到某个运行中的节点</span><br><span class="line">（2）、执行下面的命令查看解析</span><br><span class="line"></span><br><span class="line">/ # nslookup pod名.svc名.svc       --同一命名空间下的服务</span><br><span class="line">nslookup: can&apos;t resolve &apos;(null)&apos;: Name does not resolve</span><br><span class="line"></span><br><span class="line">Name:      pod名.svc名.svc</span><br><span class="line">Address 1: 10.1.172.246 pod名.svc名.svc.cluster.local</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/ # nslookup kafka-headless.kafka.svc        --不同命名空间下的服务（svc类型为headless获取到的是endpoints列表）</span><br><span class="line">nslookup: can&apos;t resolve &apos;(null)&apos;: Name does not resolve</span><br><span class="line"></span><br><span class="line">Name:      kafka-headless.kafka.svc</span><br><span class="line">Address 1: 10.244.0.12 kafka-2.kafka-headless.kafka.svc.cluster.local</span><br><span class="line">Address 2: 10.244.0.11 kafka-1.kafka-headless.kafka.svc.cluster.local</span><br><span class="line">Address 3: 10.244.0.10 kafka-0.kafka-headless.kafka.svc.cluster.local</span><br><span class="line"></span><br><span class="line">说明：</span><br><span class="line"></span><br><span class="line">--同一命名空间下的服务可以直接使用service_name或者service_name.namespace.svc.domain（获取到的是svc的ClusterIP）</span><br><span class="line">--不同命令空间下的服务必须使用service_name.namespace.svc.domain来进行解析，否则无法识别</span><br></pre></td></tr></table></figure>
+<h3 id="5-dashboard">5、dashboard</h3>
+<p>  保存下面的 dashboard yaml文件模板之后，通过create/apply命令创建dashboard应用即可。</p>
+<p>  访问dashboard则是使用dashboard的svc对应的ip，如果有使用ingress，那么则是通过ingress对应域名进行访问。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml</span><br></pre></td></tr></table></figure>
+<h3 id="6-nginx-ingress-controller">6、Nginx Ingress Controller</h3>
+<p>  Nginx Ingress Controller 是由 Nginx 与 Ingress Controller 两部分组成。</p>
+<p>  Ingress 实际上不是一种服务。简单的理解，Ingress 就是从 Kubernetes 集群外访问集群的入口，将用户的URL请求转发到不同的 Service 上。Ingress 相当于 Nginx、Apache 等负载均衡方向代理服务器，其中还包括规则定义，即 URL 的路由信息，路由信息得的刷新由 Ingress controller 来提供。</p>
+<p>  Ingress Controller 通过不断地跟 kubernetes API 打交道，实时的感知后端 service、pod 等变化，比如新增和减少 pod，service 增加与减少等；当得到这些变化信息后，Ingress Controller 再结合下文的 Ingress 生成配置，然后更新反向代理负载均衡器，并刷新其配置，达到服务发现的作用。对于 Ingress controller 来说，创建一个 Ingress 相当于在 nginx.conf 中添加一个 server 入口，并 nginx -s reload 重新生效。</p>
+<p>  Ingress本身并不会自动创建负载均衡器，需要运行一个 Ingress controller 来根据 Ingress 的定义来管理负载均衡器。为了 Ingress 正常工作，集群中必须运行 Ingress controller 。</p>
+<p>  尽管 Ingress 资源的定义指向 一个 Service, Ingress 控制器会直接将流量转到服务的 pod 而不经过服务 IP。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml         --需要修改yaml文件中的镜像标签</span><br></pre></td></tr></table></figure>
 
                 
 
@@ -240,12 +256,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/kubernetes核心服务/" data-toggle="tooltip" data-placement="top" title="kubernetes核心服务">&larr; Previous Post</a>
+                            <a href="/技术分享/kubernetesAPIServer/" data-toggle="tooltip" data-placement="top" title="kubernetes API Server">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker网络/" data-toggle="tooltip" data-placement="top" title="docker网络">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes 搭建/" data-toggle="tooltip" data-placement="top" title="kubernetes 搭建">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -320,7 +336,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-harbor简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;harbor&#x7B80;&#x4ECB;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-基于角色的访问控制rbac"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x57FA;&#x4E8E;&#x89D2;&#x8272;&#x7684;&#x8BBF;&#x95EE;&#x63A7;&#x5236;&#xFF0C;RBAC</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-项目管理"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x9879;&#x76EE;&#x7BA1;&#x7406;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-harbor安装"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;harbor&#x5B89;&#x88C5;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-下载安装包"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x4E0B;&#x8F7D;&#x5B89;&#x88C5;&#x5305;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-解压"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;&#x89E3;&#x538B;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#23-配置harbor"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">2.3&#x3001;&#x914D;&#x7F6E;harbor</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#24-启动"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">2.4&#x3001;&#x542F;&#x52A8;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#25-安装docker-compose"><span class="toc-nav-number">2.5.</span> <span class="toc-nav-text">2.5&#x3001;&#x5B89;&#x88C5;docker-compose</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#26-启停服务"><span class="toc-nav-number">2.6.</span> <span class="toc-nav-text">2.6&#x3001;&#x542F;&#x505C;&#x670D;&#x52A1;</span></a></li></ol></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-flannel-网络插件"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;flannel &#x7F51;&#x7EDC;&#x63D2;&#x4EF6;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-kube-proxy"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;kube proxy</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-kube-lego"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;kube-lego</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-kube-dns-内部dns"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;kube-dns &#xFF08; &#x5185;&#x90E8;DNS &#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-dashboard"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;dashboard</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-nginx-ingress-controller"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;Nginx Ingress Controller</span></a></li></ol>
         
         </div>
       </aside>
@@ -340,7 +356,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                         
                     </div>
                 </section>

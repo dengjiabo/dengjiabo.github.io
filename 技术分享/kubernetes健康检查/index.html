@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          harbor安装 - 邓家波 | Blog
+          kubernetes 健康检查 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/harbor安装/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes健康检查/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>harbor安装</h1>
+                        <h1>kubernetes 健康检查</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-16
+                            2019-04-17
                         </span>
                     </div>
                 
@@ -212,26 +212,26 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-harbor简介">1、harbor简介</h2>
-<p>  harbor是什么呢？简单来说，容器是集装箱，集装箱放哪里呢？对，港湾！官方的说法是：Harbor是一个用于存储和分发Docker镜像的企业级Registry服务器。</p>
-<h3 id="11-基于角色的访问控制rbac">1.1、基于角色的访问控制，RBAC</h3>
-<p>  用户分为三种角色：项目管理员（MDRWS）、开发人员（RWS）和访客（RS），当然还有一个最高管理员权限admin系统管理员。</p>
-<p>  上面的简称大概说一下，M:管理、D:删除、R:读取、W:写入、S:查询，非常细致的权限管理体系。当然一个用户可以在不同的项目里面扮演不同角色，这个和现实的用户管理体系非常吻合。</p>
-<h3 id="12-项目管理">1.2、项目管理</h3>
-<p>  和资源管理的单元划分。一个项目下面有多个镜像仓库，并且关联多个不同角色的成员，镜像复制也是基于项目的，通过添加复制规则，可以将项目下面的镜像从一个harbor迁移到另一个harbor，并且可以通过日志查看复制过程，并有retry机制。</p>
-<h2 id="2-harbor安装">2、harbor安装</h2>
-<h3 id="21-下载安装包">2.1、下载安装包</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="22-解压">2.2、解压</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="23-配置harbor">2.3、配置harbor</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim harbor.cfg</span><br><span class="line">说明：参数修改中至少需要修改hostname ，配置为具体的服务器公网IP</span><br></pre></td></tr></table></figure>
-<h3 id="24-启动">2.4、启动</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./install.sh	--如果启动之后没有报错，那么可以将公网IP复制到浏览器中进行访问 admin/Harbor12345 </span><br><span class="line">( 初始化账号密码，可在harbor.cfg中进行配置 )</span><br></pre></td></tr></table></figure>
-<h3 id="25-安装docker-compose">2.5、安装docker-compose</h3>
-<p>详情参考我的文章：<a href="/技术分享/docker-compose安装/" title="docker-compose安装">docker-compose安装</a></p>
-<h3 id="26-启停服务">2.6、启停服务</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker-compose stop			--停止harbor服务</span><br><span class="line">sudo docker-compose start			--启动harbor服务</span><br></pre></td></tr></table></figure>
+                <h2 id="1-健康检查探针">1、健康检查探针</h2>
+<h3 id="11-http-get探针">1.1、HTTP GET探针</h3>
+<p>  HTTP GET探针对容器的 IP 地址（你指定的端口和路径）执行 HTTP GET 请求。</p>
+<p>  如果探测器收到响应，并且响应状态码不代表错误（换句话说，如果HTTP响应状态码是2xx或3xx), 则认为探测成功。如果服务器返回错误响应状态码或者根本没有响应，那么探测就被认为是失败的，容器将被重新启动。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">livenessProbe:</span><br><span class="line">  httpGet:</span><br><span class="line">    path: /</span><br><span class="line">    port: 8080</span><br></pre></td></tr></table></figure>
+<h3 id="12-tcp套接字探针">1.2、TCP套接字探针</h3>
+<p>  TCP套接字探针尝试与容器指定端口建立TCP连接。如果连接成功建立，则探测成功。否则，容器重新启动。</p>
+<h3 id="13-exec探针">1.3、Exec探针</h3>
+<p>  Exec探针在容器内执行任意命令，并检查命令的退出状态码。如果状态码是 0, 则探测成功。所有其他状态码都被认为失败。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">readinessProbe:</span><br><span class="line">  exec:</span><br><span class="line">	command:</span><br><span class="line">	- /opt/zookeeper/health.sh</span><br><span class="line">  failureThreshold: 3</span><br><span class="line">  initialDelaySeconds: 30</span><br><span class="line">  periodSeconds: 10</span><br><span class="line">  successThreshold: 1</span><br><span class="line">  timeoutSeconds: 5</span><br></pre></td></tr></table></figure>
+<h2 id="2-存活探针应该检查什么">2、存活探针应该检查什么？</h2>
+<p>  简易的存活探针仅 仅检查了服务器是否响应。 虽然这看起来可能过于简单， 但即使是这样的存活探针也可以创造奇迹， 因为如果容器内运行的web服务器停止响应HTTP请求， 它将 重启容器。 与没有存活探针相比， 这是一项重大改进， 而且在大多数情况下可能已足够。</p>
+<p>  但为了更好地进行存活检查， 需要将探针配置为请求特定的URL路径（例如／health), 并让应用从内部对内部运行的所有重要组件执行状态检查， 以确保它们都没有终止或停止响应。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># cat health.sh</span><br><span class="line">#!/usr/bin/env bash</span><br><span class="line"></span><br><span class="line">ZK_CLIENT_PORT=$&#123;ZK_CLIENT_PORT:-2181&#125;</span><br><span class="line">OK=$(echo ruok | nc 127.0.0.1 $ZK_CLIENT_PORT)        </span><br><span class="line">if [ &quot;$OK&quot; == &quot;imok&quot; ]; then</span><br><span class="line">    exit 0</span><br><span class="line">else</span><br><span class="line">    exit 1</span><br><span class="line">fi</span><br><span class="line">#使用echo ruok|nc 127.0.0.1 2181 测试是否启动了该Server，若回复imok表示已经启动。</span><br></pre></td></tr></table></figure>
+<p>  一定要检查应用程序的内部， 而没有任何外部因素的影响。 例如， 当服务器无法连接到后端数据库时， 前端Web服务器的存活探针不应该返回失败。 如果间题的底层原因在数据库中， 重启Web服务器容器不会解决问题。 由于存活探测将再次失败， 你将反复重启容器直到数据库恢复。</p>
+<h2 id="3-配置存活探针的附加属性">3、配置存活探针的附加属性</h2>
+<p>  例如delay(延迟）、timeout(超时）、period(周期）等。delay=0s部分显示在容器启动后立即开始探测。timeout仅设置为1秒，因此容器必须在1秒内进行响应， 不然这次探测记作失败。每10秒探测 一次容器(period=10s), 并在探测连续三次失败(#failure=3)后重启容器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">initialDelaySeconds: 15</span><br></pre></td></tr></table></figure>
+<p>  kubernetes会在第一次探测前等待15秒。如果没有设置初始延迟，探针将在启动时立即开始探测容器， 这通常会导致探测失败， 因为应用程序还没准备好开始接收请求。 如果失败次数超过阅值，在应用程序能正确响应请求之前， 容器就会重启。</p>
+<p>备注：退出代码137表示进程被外部信号终止， 退出代码为128+9 (SIGKILL)。同样， 退出代码143对应于128+15 (SIGTERM)。</p>
 
                 
 
@@ -240,12 +240,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/kubernetes核心服务/" data-toggle="tooltip" data-placement="top" title="kubernetes核心服务">&larr; Previous Post</a>
+                            <a href="/技术分享/kubernetes高级调度策略/" data-toggle="tooltip" data-placement="top" title="kubernetes 高级调度策略">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker网络/" data-toggle="tooltip" data-placement="top" title="docker网络">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetesAPIServer/" data-toggle="tooltip" data-placement="top" title="kubernetes API Server">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -320,7 +320,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-harbor简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;harbor&#x7B80;&#x4ECB;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-基于角色的访问控制rbac"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x57FA;&#x4E8E;&#x89D2;&#x8272;&#x7684;&#x8BBF;&#x95EE;&#x63A7;&#x5236;&#xFF0C;RBAC</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-项目管理"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x9879;&#x76EE;&#x7BA1;&#x7406;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-harbor安装"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;harbor&#x5B89;&#x88C5;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-下载安装包"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x4E0B;&#x8F7D;&#x5B89;&#x88C5;&#x5305;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-解压"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;&#x89E3;&#x538B;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#23-配置harbor"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">2.3&#x3001;&#x914D;&#x7F6E;harbor</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#24-启动"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">2.4&#x3001;&#x542F;&#x52A8;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#25-安装docker-compose"><span class="toc-nav-number">2.5.</span> <span class="toc-nav-text">2.5&#x3001;&#x5B89;&#x88C5;docker-compose</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#26-启停服务"><span class="toc-nav-number">2.6.</span> <span class="toc-nav-text">2.6&#x3001;&#x542F;&#x505C;&#x670D;&#x52A1;</span></a></li></ol></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-健康检查探针"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x5065;&#x5EB7;&#x68C0;&#x67E5;&#x63A2;&#x9488;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-http-get探针"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;HTTP GET&#x63A2;&#x9488;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-tcp套接字探针"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;TCP&#x5957;&#x63A5;&#x5B57;&#x63A2;&#x9488;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#13-exec探针"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">1.3&#x3001;Exec&#x63A2;&#x9488;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-存活探针应该检查什么"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x5B58;&#x6D3B;&#x63A2;&#x9488;&#x5E94;&#x8BE5;&#x68C0;&#x67E5;&#x4EC0;&#x4E48;&#xFF1F;</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-配置存活探针的附加属性"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x914D;&#x7F6E;&#x5B58;&#x6D3B;&#x63A2;&#x9488;&#x7684;&#x9644;&#x52A0;&#x5C5E;&#x6027;</span></a></li></ol>
         
         </div>
       </aside>
@@ -340,7 +340,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                         
                     </div>
                 </section>

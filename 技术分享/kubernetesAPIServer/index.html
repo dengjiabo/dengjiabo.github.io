@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          harbor安装 - 邓家波 | Blog
+          kubernetes API Server - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/harbor安装/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetesAPIServer/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>harbor安装</h1>
+                        <h1>kubernetes API Server</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-16
+                            2019-04-17
                         </span>
                     </div>
                 
@@ -212,26 +212,32 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-harbor简介">1、harbor简介</h2>
-<p>  harbor是什么呢？简单来说，容器是集装箱，集装箱放哪里呢？对，港湾！官方的说法是：Harbor是一个用于存储和分发Docker镜像的企业级Registry服务器。</p>
-<h3 id="11-基于角色的访问控制rbac">1.1、基于角色的访问控制，RBAC</h3>
-<p>  用户分为三种角色：项目管理员（MDRWS）、开发人员（RWS）和访客（RS），当然还有一个最高管理员权限admin系统管理员。</p>
-<p>  上面的简称大概说一下，M:管理、D:删除、R:读取、W:写入、S:查询，非常细致的权限管理体系。当然一个用户可以在不同的项目里面扮演不同角色，这个和现实的用户管理体系非常吻合。</p>
-<h3 id="12-项目管理">1.2、项目管理</h3>
-<p>  和资源管理的单元划分。一个项目下面有多个镜像仓库，并且关联多个不同角色的成员，镜像复制也是基于项目的，通过添加复制规则，可以将项目下面的镜像从一个harbor迁移到另一个harbor，并且可以通过日志查看复制过程，并有retry机制。</p>
-<h2 id="2-harbor安装">2、harbor安装</h2>
-<h3 id="21-下载安装包">2.1、下载安装包</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="22-解压">2.2、解压</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf harbor-online-installer-v1.2.2.tgz</span><br></pre></td></tr></table></figure>
-<h3 id="23-配置harbor">2.3、配置harbor</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim harbor.cfg</span><br><span class="line">说明：参数修改中至少需要修改hostname ，配置为具体的服务器公网IP</span><br></pre></td></tr></table></figure>
-<h3 id="24-启动">2.4、启动</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./install.sh	--如果启动之后没有报错，那么可以将公网IP复制到浏览器中进行访问 admin/Harbor12345 </span><br><span class="line">( 初始化账号密码，可在harbor.cfg中进行配置 )</span><br></pre></td></tr></table></figure>
-<h3 id="25-安装docker-compose">2.5、安装docker-compose</h3>
-<p>详情参考我的文章：<a href="/技术分享/docker-compose安装/" title="docker-compose安装">docker-compose安装</a></p>
-<h3 id="26-启停服务">2.6、启停服务</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker-compose stop			--停止harbor服务</span><br><span class="line">sudo docker-compose start			--启动harbor服务</span><br></pre></td></tr></table></figure>
+                <h3 id="1-如何访问-kubernetes-api">1、如何访问 kubernetes API ？</h3>
+<h4 id="11-本地端口">1.1、本地端口</h4>
+<p>（1）、该端口用于接收HTTP请求</p>
+<p>（2）、该端口默认值为8080，可以通过API Server的启动参数“–insecure-port”的值来修改默认值</p>
+<p>（3）、默认的IP地址为“localhost”，可以通过启动参数“–insecure-bind-address”的值来修改该IP地址</p>
+<p>（4）、非认证或授权的HTTP请求通过该端口访问API Server</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#获取api版本信息</span><br><span class="line">curl localhost:8080/api</span><br><span class="line"></span><br><span class="line">#获取api server目前所支持的资源对象种类</span><br><span class="line">curl localhost:8080/api/v1</span><br><span class="line"></span><br><span class="line">#获取各种资源列表</span><br><span class="line">curl localhost:8080/api/v1/namespaces    			--获取命令空间列表</span><br><span class="line">curl localhost:8080/api/v1/pods          			--获取pod列表</span><br><span class="line">curl localhost:8080/api/v1/services     			--获取service列表</span><br><span class="line">curl localhost:8080/api/v1/replicationcontrollers    --获取rc控制器列表</span><br></pre></td></tr></table></figure>
+<h4 id="12-安全端口">1.2、安全端口</h4>
+<p>（1）、该端口默认值为6443，可通过启动参数“–secure-port”的值来修改默认值</p>
+<p>（2）、默认IP地址为非本地（Non-Localhost）网络端口，通过启动参数“–bind-address”设置该值</p>
+<p>（3）、该端口用于接收HTTPS请求</p>
+<p>（4）、用于基于Tocken文件或客户端证书及HTTP Base的认证</p>
+<p>（5）、用于基于策略的授权</p>
+<p>（6）、默认不启动HTTPS安全访问控制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -k --cert apiserver-kubelet-client.crt --key apiserver-kubelet-client.key https://127.0.0.1:6443/api</span><br></pre></td></tr></table></figure>
+<h3 id="2-启动代理跳过https证书验证">2、启动代理跳过https证书验证</h3>
+<p>  正常情况下，通过https访问集群需要通过认证，通过kubectl proxy代理可以跳过证书验证。</p>
+<p>  开启proxy代理，proxy接收来自本机的http请求，并转发到api server，同时处理身份认证，再把api server的返回值返回给我们。</p>
+<p>  使用这种方法不需要每次请求都上传请求凭证， 可以确保我们直接与真实的 API 服务器交互， 而不是 一个中间入（通过每次验证服务器证书的方式）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl proxy        			 --开启proxy代理</span><br><span class="line">curl http://localhost:8001        --在新的shell中访问api server</span><br></pre></td></tr></table></figure>
+<h3 id="3-pod内部如何与api-server进行交互">3、pod内部如何与API Server进行交互</h3>
+<p>（1）、kubernetes集群创建完成后，会在default 命令空间下创建一个名为 default-token 的secret。而所有在该集群中启动的pod都会默认挂载该secret。 describe 该secret会发现有以下三种条目：ca.crt、token、namespace。该secret被挂载在容器的  /var/run/secrets/kubernetes.io/serviceaccount    目录下。</p>
+<p>（2）、在pod需要和api server交互的时候，首先需要验证api server的证书是否是证书机构所签发，此证书在ca.crt中。</p>
+<p>（3）、然后会通过token文件中记录的凭证，通过 Authorization 标头来获得api server的授权。</p>
+<p>（4）、当对pod所在 命名空间的 api 对象进行 CRUD 操作时，则会使用namespace文件来传递命名空间信息到 api server。 cat namespace文件会发现该文件记录的就是pod所在命名空间。</p>
+<p>备注：CRUD代表创建、 读取、 修改和删除操作， 与之对应的HTTP方法分别是POST、 GET、 PATCH/PUT以及DELETE。</p>
 
                 
 
@@ -240,12 +246,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/kubernetes核心服务/" data-toggle="tooltip" data-placement="top" title="kubernetes核心服务">&larr; Previous Post</a>
+                            <a href="/技术分享/kubernetes健康检查/" data-toggle="tooltip" data-placement="top" title="kubernetes 健康检查">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/docker网络/" data-toggle="tooltip" data-placement="top" title="docker网络">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes插件/" data-toggle="tooltip" data-placement="top" title="kubernetes 插件">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -320,7 +326,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-harbor简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;harbor&#x7B80;&#x4ECB;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-基于角色的访问控制rbac"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x57FA;&#x4E8E;&#x89D2;&#x8272;&#x7684;&#x8BBF;&#x95EE;&#x63A7;&#x5236;&#xFF0C;RBAC</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-项目管理"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x9879;&#x76EE;&#x7BA1;&#x7406;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-harbor安装"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;harbor&#x5B89;&#x88C5;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-下载安装包"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x4E0B;&#x8F7D;&#x5B89;&#x88C5;&#x5305;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-解压"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;&#x89E3;&#x538B;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#23-配置harbor"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">2.3&#x3001;&#x914D;&#x7F6E;harbor</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#24-启动"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">2.4&#x3001;&#x542F;&#x52A8;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#25-安装docker-compose"><span class="toc-nav-number">2.5.</span> <span class="toc-nav-text">2.5&#x3001;&#x5B89;&#x88C5;docker-compose</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#26-启停服务"><span class="toc-nav-number">2.6.</span> <span class="toc-nav-text">2.6&#x3001;&#x542F;&#x505C;&#x670D;&#x52A1;</span></a></li></ol></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-如何访问-kubernetes-api"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x5982;&#x4F55;&#x8BBF;&#x95EE; kubernetes API &#xFF1F;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#11-本地端口"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x672C;&#x5730;&#x7AEF;&#x53E3;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#12-安全端口"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x5B89;&#x5168;&#x7AEF;&#x53E3;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-启动代理跳过https证书验证"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x542F;&#x52A8;&#x4EE3;&#x7406;&#x8DF3;&#x8FC7;https&#x8BC1;&#x4E66;&#x9A8C;&#x8BC1;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-pod内部如何与api-server进行交互"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;pod&#x5185;&#x90E8;&#x5982;&#x4F55;&#x4E0E;API Server&#x8FDB;&#x884C;&#x4EA4;&#x4E92;</span></a></li></ol>
         
         </div>
       </aside>
@@ -340,7 +346,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                         
                     </div>
                 </section>

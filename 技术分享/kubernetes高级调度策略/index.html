@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          kubernetes核心服务 - 邓家波 | Blog
+          kubernetes 高级调度策略 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes核心服务/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes高级调度策略/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -91,11 +91,11 @@
                               <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
                             
                         </div>
-                        <h1>kubernetes核心服务</h1>
+                        <h1>kubernetes 高级调度策略</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-16
+                            2019-04-17
                         </span>
                     </div>
                 
@@ -212,53 +212,34 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h3 id="1-etcd-主节点">1、ETCD （主节点）</h3>
-<p>  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。</p>
-<p>（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接的读取，写入数据到etcd（增强乐观锁机制，保证集群状态的一致性，减少出错可能；把实际存储从其他组件剥离，替换容易）</p>
-<p>（2）、通过etcdctl命令查看存储的资源可以发现：所有资源都是以JSON格式存储到etcd中的。可以想象成把资源以json格式存储到文件系统中。</p>
-<p>（3）、确保集群一致性：一致性算法：要求集群大部分节点（一半以上）参与才能进入到下一状态：三个节点的etcd集群，必须同时有两个存活才能参与到下一状态。</p>
-<h3 id="2-apiserver主节点">2、APIServer（主节点）</h3>
-<p>  kube-apiserver是Kubernetes最重要的核心组件之一，主要提供以下的功能：</p>
-<p>  提供集群管理的REST API接口，包括认证授权（我们现在没有用到）数据校验以及集群状态变更等- 提供其他模块之间的数据交互和通信的枢纽（其他模块通过API Server查询或修改数据，只有API Server才直接操作etcd）- 生产环境为了保证apiserver的高可用一般会部署2+个节点，在上层做一个lb做负载均衡，比如haproxy<br>
-如果apiserver服务挂掉，可能会导致某个服务无法访问。</p>
-<p>（1）、kubernetes系统组件之间只能通过api server进行通信，他们之间不会直接通信。（2）、以RESTflAPI的形式提供了查询、修改集群状态的CRUD(Create、Read、 Update、 Delete)接口。 它将状态存储到etcd中。（3）、 API服务器的客户端之 一就是命令行工具kubectl。（4）、api server客户端处理步骤：通过授权插件授权客户端（kubectl）、通过准入控制插件验证 AND/OR 修改资源请求（准入控制插件包括： AlwaysPullImages、ServiceAccount、NamespaceLifecycle、ResourceQuota等）、验证资源以及持久化存储（5）、api server如何通知客户端资源变更：</p>
-<p>  当你创建一个ReplicaSet资源时，它不会去创建pod, 同时它不会去管理服务的端点。那是控制器管理器的工作。</p>
-<p>  API 服务器甚至也没有告诉这些控制器去做什么。它做的就是，启动这些控制器，以及其他一些组件来监控己部署资源的变更。</p>
-<p>  客户端通过创建到 API 服务器的 HTTP 连接来监听变更。通过此连接，客户端会接收到监听对象的 一 系列变更通知。</p>
-<h3 id="3-controllermanager主节点">3、ControllerManager（主节点）</h3>
-<p>  Controller Manager由kube-controller-manager和cloud-controller-manager组成，是Kubernetes的大脑，它通过apiserver监控整个集群的状态，并确保集群处于预期的工作状态。</p>
-<p>（1）、kube-controller-manager由一系列的控制器组成，像Replication Controller、Node Controller、Deployment Controller、ReplicaSet DaemonSet Job Controller、StatefulSet Controller、Service Controller、Endpoint Controller、Namespace Controller、PersistentVolume Controller等。</p>
-<p>（2）、controller-manager、scheduler和apiserver 三者的功能紧密相关，一般运行在同一个机器上，我们可以把它们当做一个整体来看，所以保证了apiserver的高可用即是保证了三个模块的高可用。也可以同时启动多个controller-manager进程，但只有一个会被选举为leader提供服务。</p>
-<p>（3）、 控制器执行一个 “ 调和 “ 循环， 将实际状态调整为期望状态（在资源 spec 部分定义）， 然后将新的实际状态写入资源的 status 部分。</p>
-<p>（4）、不同控制器之间不会直接通信， 它们甚至不知道其他控制器的存在。 每个控制器都连接到 API 服务器， 通过监听机制， 请求订阅该控制器负责的一系列资源的变更。</p>
-<p>（5）、 控制器不会直接运行 pod,而是将 pod 定义到发布 API server ，让 Kubelet 创建容器并运行 。</p>
-<h3 id="4-scheduler主节点">4、Scheduler（主节点）</h3>
-<p>  kube-scheduler只负责分配调度Pod到集群内的节点上，它监听kube-apiserver，查询还未分配Node的Pod，然后根据调度策略为这些Pod分配节点。我们前面讲到的kubernetes的各种调度策略就是它实现的。</p>
-<p>（1）、过滤所有节点，找出能分配给pod的可用节点列表。</p>
-<p>（2）、对可用节点按照优先级进行排序，找出最优节点。</p>
-<p>（3）、如果多个节点有最高的优先级分数，那么则循环分配，确保平均分配给pod。</p>
-<p>（4）、可以使用自定义调度器。。</p>
-<h3 id="5-kubectl命令行工具任意master节点">5、kubectl命令行工具（任意master节点）</h3>
-<p>  kubectl是Kubernetes的命令行工具，是Kubernetes用户和管理员必备的管理工具。kubectl提供了大量的子命令，方便管理Kubernetes集群中的各种功能。</p>
-<p>  使用kubectl的第一步是配置Kubernetes集群以及认证方式，包括：</p>
-<ul>
-<li>cluster信息：api-server地址</li>
-<li>用户信息：用户名、密码或密钥</li>
-<li>Context：cluster、用户信息以及Namespace的组合</li>
-</ul>
-<h3 id="6-kubelet工作节点">6、kubelet（工作节点）</h3>
-<p>  每个工作节点上都运行一个kubelet服务进程，默认监听10250端口，接收并执行master发来的指令，管理Pod及Pod中的容器。每个kubelet进程会在API Server上注册节点自身信息，定期向master节点汇报节点的资源使用情况，并通过cAdvisor监控节点和容器的资源。</p>
-<p>（1）、创建Node资源并向api server注册该节点。</p>
-<p>（2）、持续监控api server是否把该节点分配给pod，然后启动pod容器。（具体实现方式是告知配置好的容器运行时docker来从特定的容器镜像运行容器）</p>
-<p>（3）、kubelet随后会持续监控运行的容器，并向api server报告他们的状态、事件和资源消耗。</p>
-<p>（4）、kubelet也是容器存活探针的组件，当探针报错时会重启容器。</p>
-<p>（5）、当pod从api server删除时，kubelet会删除容器，并通知api server pod已经被停止。</p>
-<h3 id="7-为集群增加service功能-kube-proxy工作节点">7、为集群增加service功能 – kube-proxy（工作节点）</h3>
-<p>  每台工作节点上都应该运行一个kube-proxy服务，它监听API server中service和endpoint的变化情况，并通过iptables等来为服务配置负载均衡，是让我们的服务在集群外可以被访问到的重要方式。</p>
-<p>  确保客户端可以通过Kubemetes API 连接到你定义的服务。kube-proxy 确保对服务 IP 和端口的连接最终能到达支持服务（或者其他，非 pod 服务终端）的某个 pod 处。</p>
-<blockquote>
-<p>推荐书籍：Kubernetes in Action中文版 .pdf</p>
-</blockquote>
+                <h3 id="1-节点选择器nodeselector">1、节点选择器（nodeSelector）</h3>
+<p>  nodeSelector是目前最为简单的一种pod运行时调度限制，目前在Kubernetes1.7.x及以下版本可用。Pod.spec.nodeSelector通过kubernetes的label-selector机制选择节点，由调度器调度策略匹配label，而后调度pod到目标节点，该匹配规则属于强制约束。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">kubectl label node node1 disktype=ssd		--给节点打标签</span><br><span class="line"></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">name: nginx</span><br><span class="line">labels:</span><br><span class="line">env: test</span><br><span class="line">spec:</span><br><span class="line">containers:- name: nginx</span><br><span class="line">image: nginx</span><br><span class="line">imagePullPolicy: IfNotPresent</span><br><span class="line">nodeSelector:								--选择对应节点标签</span><br><span class="line">disktype: ssd</span><br></pre></td></tr></table></figure>
+<p>  给node节点设置label，然后在pod 启动yaml文件中通过nodeSelector选择标签选择对应label即可。</p>
+<h3 id="2-亲和性affinity与非亲和性anti-affinity">2、亲和性（Affinity）与非亲和性（anti-affinity）</h3>
+<p>  前面提及的nodeSelector，其仅以一种非常简单的方式、即label强制限制pod调度到指定节点。而亲和性（Affinity）与非亲和性（anti-affinity）则更加灵活的指定pod调度到预期节点上，相比nodeSelector，Affinity与anti-affinity优势体现在：</p>
+<p>（1）、表述语法更加多样化，不再仅受限于强制约束与匹配。</p>
+<p>（2）、调度规则不再是强制约束（hard），取而代之的是软限（soft）或偏好（preference）。</p>
+<p>（3）、指定pod可以和哪些pod部署在同一个/不同拓扑结构下。</p>
+<p>  亲和性主要分为3种类型：node affinity与inter-pod affinity/anti-affinity。</p>
+<h4 id="21-节点亲和性node-affinity">2.1、节点亲和性（Node affinity）</h4>
+<p>  Node affinity在Kubernetes 1.2做为alpha引入，其涵盖了nodeSelector功能，主要分为requiredDuringSchedulingIgnoredDuringExecution 与 preferredDuringSchedulingIgnoredDuringExecution 2种类型。前者可认为一种强制限制，如果 Node 的标签发生了变化导致其没有符合 Pod 的调度要求节点，那么pod调度就会失败。而后者可认为理解为软限或偏好，同样如果 Node 的标签发生了变化导致其不再符合 pod 的调度要求，pod 依然会调度运行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl label nodes node1 cpu=high</span><br><span class="line">node &quot;node1&quot; labeled</span><br><span class="line"></span><br><span class="line">$  kubectl label nodes node1 cpu=mid</span><br><span class="line">node &quot;node1&quot; labeled</span><br><span class="line"></span><br><span class="line">$  kubectl label nodes node1 cpu=low</span><br><span class="line">node &quot;node1&quot; labeled</span><br><span class="line"></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">name: nginx</span><br><span class="line">labels:</span><br><span class="line">env: test</span><br><span class="line">spec:</span><br><span class="line">affinity:</span><br><span class="line">nodeAffinity:</span><br><span class="line">  requiredDuringSchedulingIgnoredDuringExecution:</span><br><span class="line">    nodeSelectorTerms:</span><br><span class="line">    - matchExpressions:</span><br><span class="line">      - key: role</span><br><span class="line">        operator: NotIn</span><br><span class="line">        values:</span><br><span class="line">        - master</span><br><span class="line">  preferredDuringSchedulingIgnoredDuringExecution:</span><br><span class="line">  - weight: 1</span><br><span class="line">    preference:</span><br><span class="line">      matchExpressions:</span><br><span class="line">      - key: cpu</span><br><span class="line">        operator: In</span><br><span class="line">        values:</span><br><span class="line">        - high</span><br><span class="line">containers:- name: nginx</span><br><span class="line">image: nginx</span><br><span class="line">imagePullPolicy: IfNotPresent</span><br></pre></td></tr></table></figure>
+<h4 id="22-pod亲和性inter-pod-affinity与反亲和性anti-affinity">2.2、pod亲和性（Inter-pod affinity）与反亲和性（anti-affinity）</h4>
+<p>  inter-pod affinity与anti-affinity由Kubernetes 1.4引入，当前处于beta阶段，其中podAffinity用于调度pod可以和哪些pod部署在同一拓扑结构之下。而podAntiAffinity相反，其用于规定pod不可以和哪些pod部署在同一拓扑结构下。通过pod affinity与anti-affinity来解决pod和pod之间的关系。</p>
+<p>  与Node affinity类似，pod affinity与anti-affinity同样分为requiredDuringSchedulingIgnoredDuringExecution and preferredDuringSchedulingIgnoredDuringExecution等2种类型，前者被认为是强制约束，而后者后者可认为理解软限（soft）或偏好（preference）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">spec:</span><br><span class="line">replicas: 1template:</span><br><span class="line">metadata:</span><br><span class="line">  labels:</span><br><span class="line">    app: is</span><br><span class="line"></span><br><span class="line">spec:</span><br><span class="line">  affinity:</span><br><span class="line">    podAffinity:</span><br><span class="line">      requiredDuringSchedulingIgnoredDuringExecution:</span><br><span class="line">      - labelSelector:</span><br><span class="line">          matchExpressions:</span><br><span class="line">          - key: app</span><br><span class="line">            operator: NotIn</span><br><span class="line">            values:</span><br><span class="line">            - solr                                --不亲和pod  solr，不处于同一台机器</span><br><span class="line">        topologyKey: kubernetes.io/hostname</span><br><span class="line">    podAntiAffinity:</span><br><span class="line">      preferredDuringSchedulingIgnoredDuringExecution:</span><br><span class="line">      - weight: 1</span><br><span class="line">        podAffinityTerm:</span><br><span class="line">          labelSelector:</span><br><span class="line">            matchExpressions:</span><br><span class="line">            - key: app</span><br><span class="line">              operator: In</span><br><span class="line">              values:</span><br><span class="line">              - oltp                            --亲和pod oltp,会处于同一台机器</span><br><span class="line">         topologyKey: beta.kubernetes.io/os</span><br></pre></td></tr></table></figure>
+<h3 id="3-污点taints与容忍tolerations">3、污点（Taints）与容忍（tolerations）</h3>
+<p>  对于Node affinity，无论是强制约束（hard）或偏好（preference）方式，都是调度pod到预期节点上，而Taints恰好与之相反，如果一个节点标记为 Taints ，除非 Pod也被标识为可以耐受污点节点，否则该Taints节点不会被调度pod。Taints与tolerations当前处于beta阶段。</p>
+<p>  Taints节点应用场景比如用户希望把Kubernetes Master节点保留给 Kubernetes 系统组件使用，或者把一组具有特殊资源预留给某些 pod。pod不会再被调度到taint标记过的节点。</p>
+<p>应用场景：</p>
+<p>（1）、针对拥有特定资源的节点，允许对资源有特殊要求的pod在上面运行</p>
+<p>（2）、针对不同环境进行区分，比如，将node1、node2分配给部分1或者项目1。将node3、node4分配给其他部门或者其他项目</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">#给node1节点设置污点</span><br><span class="line">kubectl taint node node1 node-type=production:NoSchedule</span><br><span class="line">node/node1 tainted</span><br><span class="line"></span><br><span class="line">#去除污点</span><br><span class="line">kubectl taint nodes node_name key:[effect]-    #(这里的key不用指定value)</span><br><span class="line">kubectl taint node node1 node-type:NoSchedule-</span><br><span class="line"></span><br><span class="line">#describe node1节点可以发现如下配置</span><br><span class="line">tolerations:</span><br><span class="line">- key: &quot;key&quot;</span><br><span class="line">operator: &quot;Equal&quot;</span><br><span class="line">value: &quot;value&quot;</span><br><span class="line">effect: &quot;NoSchedule&quot;</span><br><span class="line"></span><br><span class="line">#创建污点之后，对于已经处于运行中的pod是没有任何影响的，但是对与新创建的pod如果没有设置容忍则无法在对应节点上创建pod</span><br><span class="line"></span><br><span class="line">#修改部署yaml，添加容忍相关配置(在containers同级部分添加如下标红配置)，只有配置容忍的pod才能被成功调度到设置污点的节点</span><br><span class="line">    spec:</span><br><span class="line">      tolerations:</span><br><span class="line">      - key: node-type</span><br><span class="line">        operator: Equal</span><br><span class="line">        value: production</span><br><span class="line">        effect: NoSchedule</span><br><span class="line">      containers:</span><br><span class="line">        - name: nginx</span><br><span class="line">          image: nginx:latest</span><br><span class="line">          imagePullPolicy: Never</span><br><span class="line">          ports:</span><br><span class="line">            - containerPort: 80</span><br><span class="line"></span><br><span class="line">#有污点无容忍不可以创建pod，有容忍无污点可以创建pod，两种情况对已经创建的pod都无影响。</span><br></pre></td></tr></table></figure>
+<p>effect 共有三个可选项，可按实际需求进行设置：</p>
+<p>（1）、NoSchedule：pod不会被调度到标记为taints节点。</p>
+<p>（2）、PreferNoSchedule：NoSchedule的“preference”或“soft”版本。</p>
+<p>（3）、NoExecute：该选项意味着一旦Taint 生效，如该节点内正在运行的 Pod 没有对应 Tolerate 设置，会直接被逐出。</p>
 
                 
 
@@ -266,13 +247,9 @@
                 <!-- Pager -->
                 <ul class="pager">
                     
-                        <li class="previous">
-                            <a href="/技术分享/kubernetes命令集合/" data-toggle="tooltip" data-placement="top" title="kubernetes命令集合">&larr; Previous Post</a>
-                        </li>
-                    
                     
                         <li class="next">
-                            <a href="/技术分享/harbor安装/" data-toggle="tooltip" data-placement="top" title="harbor安装">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes健康检查/" data-toggle="tooltip" data-placement="top" title="kubernetes 健康检查">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -347,7 +324,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-etcd-主节点"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;ETCD &#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-apiserver主节点"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;APIServer&#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-controllermanager主节点"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;ControllerManager&#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-scheduler主节点"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;Scheduler&#xFF08;&#x4E3B;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-kubectl命令行工具任意master节点"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;kubectl&#x547D;&#x4EE4;&#x884C;&#x5DE5;&#x5177;&#xFF08;&#x4EFB;&#x610F;master&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-kubelet工作节点"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;kubelet&#xFF08;&#x5DE5;&#x4F5C;&#x8282;&#x70B9;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7-为集群增加service功能-kube-proxy工作节点"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">7&#x3001;&#x4E3A;&#x96C6;&#x7FA4;&#x589E;&#x52A0;service&#x529F;&#x80FD; &#x2013; kube-proxy&#xFF08;&#x5DE5;&#x4F5C;&#x8282;&#x70B9;&#xFF09;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-节点选择器nodeselector"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x8282;&#x70B9;&#x9009;&#x62E9;&#x5668;&#xFF08;nodeSelector&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-亲和性affinity与非亲和性anti-affinity"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x4EB2;&#x548C;&#x6027;&#xFF08;Affinity&#xFF09;&#x4E0E;&#x975E;&#x4EB2;&#x548C;&#x6027;&#xFF08;anti-affinity&#xFF09;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#21-节点亲和性node-affinity"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x8282;&#x70B9;&#x4EB2;&#x548C;&#x6027;&#xFF08;Node affinity&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#22-pod亲和性inter-pod-affinity与反亲和性anti-affinity"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;pod&#x4EB2;&#x548C;&#x6027;&#xFF08;Inter-pod affinity&#xFF09;&#x4E0E;&#x53CD;&#x4EB2;&#x548C;&#x6027;&#xFF08;anti-affinity&#xFF09;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-污点taints与容忍tolerations"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x6C61;&#x70B9;&#xFF08;Taints&#xFF09;&#x4E0E;&#x5BB9;&#x5FCD;&#xFF08;tolerations&#xFF09;</span></a></li></ol>
         
         </div>
       </aside>
