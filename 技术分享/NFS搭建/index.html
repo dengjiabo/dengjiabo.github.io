@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          kubernetes API Server - 邓家波 | Blog
+          NFS 搭建 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetesAPIServer/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/NFS搭建/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,10 +88,10 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+                              <a class="tag" href="/tags/#NFS" title="NFS">NFS</a>
                             
                         </div>
-                        <h1>kubernetes API Server</h1>
+                        <h1>NFS 搭建</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
@@ -212,32 +212,25 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h3 id="1-如何访问-kubernetes-api">1、如何访问 kubernetes API ？</h3>
-<h4 id="11-本地端口">1.1、本地端口</h4>
-<p>（1）、该端口用于接收HTTP请求</p>
-<p>（2）、该端口默认值为8080，可以通过API Server的启动参数“–insecure-port”的值来修改默认值</p>
-<p>（3）、默认的IP地址为“localhost”，可以通过启动参数“–insecure-bind-address”的值来修改该IP地址</p>
-<p>（4）、非认证或授权的HTTP请求通过该端口访问API Server</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#获取api版本信息</span><br><span class="line">curl localhost:8080/api</span><br><span class="line"></span><br><span class="line">#获取api server目前所支持的资源对象种类</span><br><span class="line">curl localhost:8080/api/v1</span><br><span class="line"></span><br><span class="line">#获取各种资源列表</span><br><span class="line">curl localhost:8080/api/v1/namespaces    			--获取命令空间列表</span><br><span class="line">curl localhost:8080/api/v1/pods          			--获取pod列表</span><br><span class="line">curl localhost:8080/api/v1/services     			--获取service列表</span><br><span class="line">curl localhost:8080/api/v1/replicationcontrollers    --获取rc控制器列表</span><br></pre></td></tr></table></figure>
-<h4 id="12-安全端口">1.2、安全端口</h4>
-<p>（1）、该端口默认值为6443，可通过启动参数“–secure-port”的值来修改默认值</p>
-<p>（2）、默认IP地址为非本地（Non-Localhost）网络端口，通过启动参数“–bind-address”设置该值</p>
-<p>（3）、该端口用于接收HTTPS请求</p>
-<p>（4）、用于基于Tocken文件或客户端证书及HTTP Base的认证</p>
-<p>（5）、用于基于策略的授权</p>
-<p>（6）、默认不启动HTTPS安全访问控制</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -k --cert apiserver-kubelet-client.crt --key apiserver-kubelet-client.key https://127.0.0.1:6443/api</span><br></pre></td></tr></table></figure>
-<h3 id="2-启动代理跳过https证书验证">2、启动代理跳过https证书验证</h3>
-<p>  正常情况下，通过https访问集群需要通过认证，通过kubectl proxy代理可以跳过证书验证。</p>
-<p>  开启proxy代理，proxy接收来自本机的http请求，并转发到api server，同时处理身份认证，再把api server的返回值返回给我们。</p>
-<p>  使用这种方法不需要每次请求都上传请求凭证， 可以确保我们直接与真实的 API 服务器交互， 而不是 一个中间入（通过每次验证服务器证书的方式）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl proxy        			 --开启proxy代理</span><br><span class="line">curl http://localhost:8001        --在新的shell中访问api server</span><br></pre></td></tr></table></figure>
-<h3 id="3-pod内部如何与api-server进行交互">3、pod内部如何与API Server进行交互</h3>
-<p>（1）、kubernetes集群创建完成后，会在default 命令空间下创建一个名为 default-token 的secret。而所有在该集群中启动的pod都会默认挂载该secret。 describe 该secret会发现有以下三种条目：ca.crt、token、namespace。该secret被挂载在容器的  /var/run/secrets/kubernetes.io/serviceaccount    目录下。</p>
-<p>（2）、在pod需要和api server交互的时候，首先需要验证api server的证书是否是证书机构所签发，此证书在ca.crt中。</p>
-<p>（3）、然后会通过token文件中记录的凭证，通过 Authorization 标头来获得api server的授权。</p>
-<p>（4）、当对pod所在 命名空间的 api 对象进行 CRUD 操作时，则会使用namespace文件来传递命名空间信息到 api server。 cat namespace文件会发现该文件记录的就是pod所在命名空间。</p>
-<p>备注：CRUD代表创建、 读取、 修改和删除操作， 与之对应的HTTP方法分别是POST、 GET、 PATCH/PUT以及DELETE。</p>
+                <blockquote>
+<p>在不适用各种云存储的基础上可以在本地搭建NFS作为kubernetes pv存储介质</p>
+</blockquote>
+<h3 id="1-安装">1、安装</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install nfs-utils rpcbind</span><br></pre></td></tr></table></figure>
+<h3 id="2-设置开机启动">2、设置开机启动</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start nfs</span><br><span class="line">systemctl enable nfs</span><br></pre></td></tr></table></figure>
+<h3 id="3-创建共享路径">3、创建共享路径</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir /data</span><br></pre></td></tr></table></figure>
+<h3 id="4-为共享路径设置权限">4、为共享路径设置权限</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/exports</span><br><span class="line">/data *(rw,no_root_squash,no_all_squash,sync)</span><br></pre></td></tr></table></figure>
+<h3 id="5-配置生效">5、配置生效</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">exportfs -r</span><br><span class="line">showmount -e</span><br></pre></td></tr></table></figure>
+<h3 id="6-其他服务器节点挂载该路径">6、其他服务器节点挂载该路径</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mount -t nfs ip:/data /mnt</span><br><span class="line">ip：nfs服务端节点ip</span><br></pre></td></tr></table></figure>
+<h3 id="7-解除挂载">7、解除挂载</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">umount /u01/monitoring</span><br></pre></td></tr></table></figure>
+<h3 id="8-设置开机自动挂载">8、设置开机自动挂载</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/fstab</span><br><span class="line">ip:/data /data nfs rw</span><br></pre></td></tr></table></figure>
 
                 
 
@@ -246,12 +239,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/kubernetes健康检查/" data-toggle="tooltip" data-placement="top" title="kubernetes 健康检查">&larr; Previous Post</a>
+                            <a href="/技术分享/kubernetesService/" data-toggle="tooltip" data-placement="top" title="Service">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/技术分享/kubernetes插件/" data-toggle="tooltip" data-placement="top" title="kubernetes 插件">Next Post &rarr;</a>
+                            <a href="/技术分享/kubernetes高级调度策略/" data-toggle="tooltip" data-placement="top" title="kubernetes 高级调度策略">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -326,7 +319,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-如何访问-kubernetes-api"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x5982;&#x4F55;&#x8BBF;&#x95EE; kubernetes API &#xFF1F;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#11-本地端口"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x672C;&#x5730;&#x7AEF;&#x53E3;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#12-安全端口"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x5B89;&#x5168;&#x7AEF;&#x53E3;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-启动代理跳过https证书验证"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x542F;&#x52A8;&#x4EE3;&#x7406;&#x8DF3;&#x8FC7;https&#x8BC1;&#x4E66;&#x9A8C;&#x8BC1;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-pod内部如何与api-server进行交互"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;pod&#x5185;&#x90E8;&#x5982;&#x4F55;&#x4E0E;API Server&#x8FDB;&#x884C;&#x4EA4;&#x4E92;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-安装"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-设置开机启动"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x8BBE;&#x7F6E;&#x5F00;&#x673A;&#x542F;&#x52A8;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-创建共享路径"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x521B;&#x5EFA;&#x5171;&#x4EAB;&#x8DEF;&#x5F84;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-为共享路径设置权限"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x4E3A;&#x5171;&#x4EAB;&#x8DEF;&#x5F84;&#x8BBE;&#x7F6E;&#x6743;&#x9650;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-配置生效"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x914D;&#x7F6E;&#x751F;&#x6548;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-其他服务器节点挂载该路径"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;&#x5176;&#x4ED6;&#x670D;&#x52A1;&#x5668;&#x8282;&#x70B9;&#x6302;&#x8F7D;&#x8BE5;&#x8DEF;&#x5F84;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7-解除挂载"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">7&#x3001;&#x89E3;&#x9664;&#x6302;&#x8F7D;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#8-设置开机自动挂载"><span class="toc-nav-number">8.</span> <span class="toc-nav-text">8&#x3001;&#x8BBE;&#x7F6E;&#x5F00;&#x673A;&#x81EA;&#x52A8;&#x6302;&#x8F7D;</span></a></li></ol>
         
         </div>
       </aside>
@@ -346,7 +339,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+                          <a class="tag" href="/tags/#NFS" title="NFS">NFS</a>
                         
                     </div>
                 </section>

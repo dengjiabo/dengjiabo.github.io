@@ -16,8 +16,22 @@
     </url>
 
     <url>
+        <loc>www.dengjiabo.cn/tags/NFS/</loc>
+        <lastmod>2019-04-17T03:40:13.913Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
         <loc>www.dengjiabo.cn/tags/kubernetes/</loc>
-        <lastmod>2019-04-17T02:28:13.838Z</lastmod>
+        <lastmod>2019-04-17T03:49:12.332Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>www.dengjiabo.cn/tags/JMeter/</loc>
+        <lastmod>2019-04-26T09:08:45.597Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

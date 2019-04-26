@@ -141,14 +141,14 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -211,26 +211,54 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/docker安装/">
+    <a href="/技术分享/kubernetes命令集合/">
         <h2 class="post-title">
-            docker安装
+            kubernetes命令集合
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、centos7安装
-1yum install docker -y
-2、通过二进制安装
-下载docker CE最新稳定版
-Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_64/
-123456789101112131415161718192021222324252627282930313233343536373......
+            1、获取kubernetes资源
+12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
         </div>
     </a>
     
         <p class="post-meta" style="margin: 10px 0;">
             Posted by 邓家波 on
-            2019-04-15
+            2019-04-16
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/harbor安装/">
+        <h2 class="post-title">
+            harbor安装
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、harbor简介
+  harbor是什么呢？简单来说，容器是集装箱，集装箱放哪里呢？对，港湾！官方的说法是：Harbor是一个用于存储和分发Docker镜像的企业级Registry服务器。
+1.1、基于角色的访问控制，RBAC
+  用户分为三种角色：项目管理员（MDRWS）、开发人员（RWS）和访客（RS），当然还有一个最高管理员权限admin系统管理员。
+  上面的简称大概说一下，M:......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-16
         </p>
         <div class="tags">
             
@@ -304,6 +332,74 @@ Type: volume
         <div class="tags">
             
               <a href="/tags/#nextcloud" title="nextcloud">nextcloud</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/docker安装/">
+        <h2 class="post-title">
+            docker安装
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、centos7安装
+1yum install docker -y
+2、通过二进制安装
+下载docker CE最新稳定版
+Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_64/
+123456789101112131415161718192021222324252627282930313233343536373......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-15
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#docker" title="docker">docker</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/docker网络/">
+        <h2 class="post-title">
+            docker网络
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、docker网络基础
+1.1、查看docker网络
+1docker network ls
+1.2、查看网络详细信息
+1docker network inspect		--可以看到当前虚机所有容器、容器所处网段
+1.3、查看docker网络接口
+1ip a					  --可以看到两种接口docker0和vethxxx(两种接口作用暂且不表，下文进行讲解)
+1.4、新建docker net......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-15
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#docker" title="docker">docker</a>
             
         </div>
     
@@ -422,11 +518,15 @@ docker-compose 是用来做 docker 的多容器控制
     <div class="tags">
         
             
+        
+            
             <a href="/tags/#docker" title="docker" rel="6">docker</a>
             
         
             
-            <a href="/tags/#kubernetes" title="kubernetes" rel="8">kubernetes</a>
+            <a href="/tags/#kubernetes" title="kubernetes" rel="9">kubernetes</a>
+            
+        
             
         
             
@@ -484,23 +584,23 @@ docker-compose 是用来做 docker 的多容器控制
     <ul>
       
         <li>
+          <a href="/技术分享/JMeter/">JMeter</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/kubernetesService/">Service</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/NFS搭建/">NFS 搭建</a>
+        </li>
+      
+        <li>
           <a href="/技术分享/kubernetes高级调度策略/">kubernetes 高级调度策略</a>
         </li>
       
         <li>
           <a href="/技术分享/kubernetes健康检查/">kubernetes 健康检查</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetesAPIServer/">kubernetes API Server</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes插件/">kubernetes 插件</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes 搭建/">kubernetes 搭建</a>
         </li>
       
     </ul>
@@ -515,7 +615,7 @@ docker-compose 是用来做 docker 的多容器控制
         
     <h5>ARCHIVES</h5>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">15</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
     </div>
 
         <hr>
@@ -524,7 +624,7 @@ docker-compose 是用来做 docker 的多容器控制
 
     <h5>categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">15</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">18</span></li></ul>
     </div>
 
         <hr>
