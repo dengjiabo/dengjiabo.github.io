@@ -134,14 +134,14 @@
 
                         
                         <li>
-                            <a href="/about/">About</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/about/">About</a>
                         </li>
                         
                     
@@ -223,7 +223,8 @@
 1http://jmeter.apache.org/download_jmeter.cgi	--JMeter官网下载地址
 2、启动JMeter
 将下载的JMeter解压，会得到如下所示的目录结构
-12345678910111213backups			--编写测试脚本过程中会将备份文件保存在该目录bin			    --JMeter jar包所在目录、启动目录、配置文......
+
+12345678910111213backups			--编写测试脚本过程中会将备份文件保存在该目录bin			    --JMeter jar包所在目录、启动目录、配置......
         </div>
     </a>
     
@@ -500,17 +501,16 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes核心服务/">
+    <a href="/技术分享/kubernetes命令集合/">
         <h2 class="post-title">
-            kubernetes核心服务
+            kubernetes命令集合
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、ETCD （主节点）
-  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
-（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
+            1、获取kubernetes资源
+12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
         </div>
     </a>
     
@@ -569,9 +569,9 @@
     <div class="tags">
         
             
-        
-            
             <a href="/tags/#docker" title="docker" rel="6">docker</a>
+            
+        
             
         
             
