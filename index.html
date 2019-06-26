@@ -211,6 +211,134 @@
 
 <div class="post-preview">
 
+    <a href="/技术分享/自动化测试之cypress/">
+        <h2 class="post-title">
+            Cypress
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、安装
+1.1、windows下载exe文件
+1wget https://cdn.cypress.io/desktop/3.3.1/win32-x64/cypress.zip
+1.2、通过nodejs、npm进行安装
+1234567#安装nodejs,进入nodejs官网下载windows版本的软件包，点击安装#执行下面的命令安装cypressnpm install cypress --s......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-05-27
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#自动化测试" title="自动化测试">自动化测试</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/自动化测试之Selenium/">
+        <h2 class="post-title">
+            Selenium
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、Selenium简介
+Selenium是一套开源软件测试自动化工具，支持所有主要操作系统和浏览器。
+1.1、Selenium 内容
+（1）、Selenium WebDriver
+WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编程语言都实现了这套API。
+（2）、Selenium IDE
+通过在浏览器中安装该插件，可以完成脚本的录制。
+（3）、Seleniu......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-05-22
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#自动化测试" title="自动化测试">自动化测试</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/ELK之es集群/">
+        <h2 class="post-title">
+            es集群
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、ES集群简介
+一个节点(node)就是一个Elasticsearch实例，而一个集群(cluster)由一个或多个节点组成，它们具有相同的cluster.name，它们协同工作，分享数据和负载。当加入新的节点或者删除一个节点时，集群就会感知到并平衡数据。
+集群中一个节点会被选举为主节点(master),它将临时管理集群级别的一些变更，例如新建或删除索引、增加或移除节点等。主节点不参与文档......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-05-10
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#ELK" title="ELK">ELK</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/ELK之logstash日志过滤/">
+        <h2 class="post-title">
+            logstash日志过滤
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、logstash内置正则
+1https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
+2、grok正则捕获插件
+说明：grok是一个十分强大的logstash filter插件，他可以通过正则解析任意文本，将非结构化日志数据转换成结构化和方便查询的结构。他是目前logstash 中解析非结构化日志数据最好......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-05-10
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#ELK" title="ELK">ELK</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/技术分享/JMeter/">
         <h2 class="post-title">
             JMeter
@@ -405,129 +533,6 @@
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/技术分享/kubernetes插件/">
-        <h2 class="post-title">
-            kubernetes 插件
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、flannel 网络插件
-  为了实现不同node上的Pod通信，必须实现以下两点：
-（1）、 对k8s集群中所有node上的pod做IP规划，防止IP冲突。因为Pod之间通过Pod IP通信。
-（2）、保存规划的Pod IP与node IP映射关系。因为说到底node之间是通过node IP通信。
-  数据包从docker0出来，转发给flannel，flannel根据目标Pod IP......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-17
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/kubernetes 搭建/">
-        <h2 class="post-title">
-            kubernetes 搭建
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、使用kubespray搭建
-  Kubespray是Google开源的一个部署生产级别的Kubernetes服务器集群的开源项目，它整合了Ansible作为部署的工具。
-1.1、拉取kubespray项目
-123yum install -y python-pip git sshpassgit clone https://github.com/kubernetes-sigs/kubespr......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-16
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/kubernetes helm/">
-        <h2 class="post-title">
-            kubernetes helm
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、helm简介
-  每个成功的软件平台都有一个优秀的打包系统，比如 Debian、Ubuntu 的 apt，Redhat、Centos 的 yum。而 Helm 则是 Kubernetes 上的包管理器。
-  Helm 有两个重要的概念：chart 和 release。
-  1、chart 是创建一个应用的信息集合，包括各种 Kubernetes 对象的配置模板、参数定义、依赖关系、文档说......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-16
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/kubernetes命令集合/">
-        <h2 class="post-title">
-            kubernetes命令集合
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、获取kubernetes资源
-12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-16
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -569,15 +574,23 @@
     <div class="tags">
         
             
-            <a href="/tags/#docker" title="docker" rel="6">docker</a>
+            <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
             
         
+            
+        
+            
+            <a href="/tags/#docker" title="docker" rel="6">docker</a>
             
         
             
             <a href="/tags/#kubernetes" title="kubernetes" rel="9">kubernetes</a>
             
         
+            
+        
+            
+            <a href="/tags/#自动化测试" title="自动化测试" rel="2">自动化测试</a>
             
         
             
@@ -635,23 +648,23 @@
     <ul>
       
         <li>
+          <a href="/技术分享/自动化测试之cypress/">Cypress</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/自动化测试之Selenium/">Selenium</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/ELK之es集群/">es集群</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/ELK之logstash日志过滤/">logstash日志过滤</a>
+        </li>
+      
+        <li>
           <a href="/技术分享/JMeter/">JMeter</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetesService/">Service</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/NFS搭建/">NFS 搭建</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes高级调度策略/">kubernetes 高级调度策略</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes健康检查/">kubernetes 健康检查</a>
         </li>
       
     </ul>
@@ -666,7 +679,7 @@
         
     <h5>ARCHIVES</h5>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
     </div>
 
         <hr>
@@ -675,7 +688,7 @@
 
     <h5>categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">18</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">22</span></li></ul>
     </div>
 
         <hr>

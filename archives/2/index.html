@@ -211,6 +211,100 @@
 
 <div class="post-preview">
 
+    <a href="/技术分享/kubernetes插件/">
+        <h2 class="post-title">
+            kubernetes 插件
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、flannel 网络插件
+  为了实现不同node上的Pod通信，必须实现以下两点：
+（1）、 对k8s集群中所有node上的pod做IP规划，防止IP冲突。因为Pod之间通过Pod IP通信。
+（2）、保存规划的Pod IP与node IP映射关系。因为说到底node之间是通过node IP通信。
+  数据包从docker0出来，转发给flannel，flannel根据目标Pod IP......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-17
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes 搭建/">
+        <h2 class="post-title">
+            kubernetes 搭建
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、使用kubespray搭建
+  Kubespray是Google开源的一个部署生产级别的Kubernetes服务器集群的开源项目，它整合了Ansible作为部署的工具。
+1.1、拉取kubespray项目
+123yum install -y python-pip git sshpassgit clone https://github.com/kubernetes-sigs/kubespr......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-16
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes helm/">
+        <h2 class="post-title">
+            kubernetes helm
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、helm简介
+  每个成功的软件平台都有一个优秀的打包系统，比如 Debian、Ubuntu 的 apt，Redhat、Centos 的 yum。而 Helm 则是 Kubernetes 上的包管理器。
+  Helm 有两个重要的概念：chart 和 release。
+  1、chart 是创建一个应用的信息集合，包括各种 Kubernetes 对象的配置模板、参数定义、依赖关系、文档说......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-16
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/技术分享/kubernetes核心服务/">
         <h2 class="post-title">
             kubernetes核心服务
@@ -222,6 +316,35 @@
             1、ETCD （主节点）
   kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
 （1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-16
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes命令集合/">
+        <h2 class="post-title">
+            kubernetes命令集合
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、获取kubernetes资源
+12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
         </div>
     </a>
     
@@ -308,43 +431,6 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/docker数据持久化/">
-        <h2 class="post-title">
-            docker数据持久化
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、持久化方法一：使用docker volume完成持久化
-
-Type: volume
-
-1.1、新建volume
-1docker volume create devtest     --devtest是卷名称
-1.2、获取volume
-1docker volume ls                   --查看服务器中的所有卷
-1.3、查看volume基本信息
-1docker volu......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#docker" title="docker">docker</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
     <a href="/技术分享/nextcloud搭建个人网盘/">
         <h2 class="post-title">
             nextcloud搭建个人网盘
@@ -410,57 +496,24 @@ Docker官网下载地址：https://download.docker.com/linux/static/stable/x86_6
 
 <div class="post-preview">
 
-    <a href="/技术分享/docker-compose安装/">
+    <a href="/技术分享/docker数据持久化/">
         <h2 class="post-title">
-            docker-compose安装
+            docker数据持久化
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、什么是docker-compose?
-docker-compose 是一个用来把 docker 自动化的东西
-docker-compose 是用来做 docker 的多容器控制
-2、安装docker-compose
-2.1、二进制安装
-12345678下载二进制文件sudo curl -L https://github.com/docker/compose/releases/downlo......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#docker" title="docker">docker</a>
-            
-        </div>
-    
+            1、持久化方法一：使用docker volume完成持久化
 
-</div>
-<hr>
+Type: volume
 
-<div class="post-preview">
-
-    <a href="/技术分享/docker常用命令/">
-        <h2 class="post-title">
-            docker常用命令
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、查看容器cpu、内存
-123docker stats备注:如果加上容器编号，那么则只显示该容器的信息，否则显示所有
-2、启停docker
-12systemctl start dockerservice docker start
-3、搜索可拉取镜像
-1docker search tomcat
-4、拉取镜像
-1docker pull mysql
-5、运行容器
-12345678910docke......
+1.1、新建volume
+1docker volume create devtest     --devtest是卷名称
+1.2、获取volume
+1docker volume ls                   --查看服务器中的所有卷
+1.3、查看volume基本信息
+1docker volu......
         </div>
     </a>
     
@@ -488,6 +541,10 @@ docker-compose 是用来做 docker 的多容器控制
             <a href="/">&larr; Newer Posts</a>
         </li>
     
+    
+        <li class="next">
+            <a href="/archives/3/">Older Posts &rarr;</a>
+        </li>
     
 </ul>
 
@@ -519,15 +576,23 @@ docker-compose 是用来做 docker 的多容器控制
     <div class="tags">
         
             
-            <a href="/tags/#docker" title="docker" rel="6">docker</a>
+            <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
             
         
+            
+        
+            
+            <a href="/tags/#docker" title="docker" rel="6">docker</a>
             
         
             
             <a href="/tags/#kubernetes" title="kubernetes" rel="9">kubernetes</a>
             
         
+            
+        
+            
+            <a href="/tags/#自动化测试" title="自动化测试" rel="2">自动化测试</a>
             
         
             
@@ -585,23 +650,23 @@ docker-compose 是用来做 docker 的多容器控制
     <ul>
       
         <li>
+          <a href="/技术分享/自动化测试之cypress/">Cypress</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/自动化测试之Selenium/">Selenium</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/ELK之es集群/">es集群</a>
+        </li>
+      
+        <li>
+          <a href="/技术分享/ELK之logstash日志过滤/">logstash日志过滤</a>
+        </li>
+      
+        <li>
           <a href="/技术分享/JMeter/">JMeter</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetesService/">Service</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/NFS搭建/">NFS 搭建</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes高级调度策略/">kubernetes 高级调度策略</a>
-        </li>
-      
-        <li>
-          <a href="/技术分享/kubernetes健康检查/">kubernetes 健康检查</a>
         </li>
       
     </ul>
@@ -616,7 +681,7 @@ docker-compose 是用来做 docker 的多容器控制
         
     <h5>ARCHIVES</h5>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
     </div>
 
         <hr>
@@ -625,7 +690,7 @@ docker-compose 是用来做 docker 的多容器控制
 
     <h5>categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">18</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">22</span></li></ul>
     </div>
 
         <hr>

@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          docker网络 - 邓家波 | Blog
+          Cypress - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/docker网络/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/自动化测试之cypress/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                              <a class="tag" href="/tags/#自动化测试" title="自动化测试">自动化测试</a>
                             
                         </div>
-                        <h1>docker网络</h1>
+                        <h1>Cypress</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-04-15
+                            2019-05-27
                         </span>
                     </div>
                 
@@ -212,40 +212,39 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="1-docker网络基础">1、docker网络基础</h2>
-<h3 id="11-查看docker网络">1.1、查看docker网络</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network ls</span><br></pre></td></tr></table></figure>
-<h3 id="12-查看网络详细信息">1.2、查看网络详细信息</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect		--可以看到当前虚机所有容器、容器所处网段</span><br></pre></td></tr></table></figure>
-<h3 id="13-查看docker网络接口">1.3、查看docker网络接口</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip a					  --可以看到两种接口docker0和vethxxx(两种接口作用暂且不表，下文进行讲解)</span><br></pre></td></tr></table></figure>
-<h3 id="14-新建docker-network">1.4、新建docker network</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker network create -d bridge my-bridge</span><br><span class="line">-d    --指定Driver为bridge</span><br><span class="line">my-bridge	--network名</span><br></pre></td></tr></table></figure>
-<h3 id="15-新建docker时指定bridge">1.5、新建docker时指定bridge</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name test --network my-bridge busybox /bin/sh</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">可以通过brctl show 检测到接口绑定到my-bridge上。</span><br></pre></td></tr></table></figure>
-<h3 id="16-修改已经运行的docker连接的network">1.6、修改已经运行的docker连接的network</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker network connect my-bridge test</span><br><span class="line"></span><br><span class="line">my-bridge    --表示network</span><br><span class="line">test         --表示容器名</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">	通过此种方法，test默认在docker0上的连接不会删除，只会在my-bridge这个网桥上新建一个连接</span><br><span class="line">	如果bridge是用户自己创建的，并且连接有多个容器，那么这些容器之间不仅可以通过ping ip，还可以通过ping 容器名，默认容器之间是使用了--link 参数的，可以相互连通。</span><br></pre></td></tr></table></figure>
-<h2 id="2-容器与容器之间的通信">2、容器与容器之间的通信</h2>
-<img src="/技术分享/docker网络/容器之间网络通信.png" title="docker网络">
-<h3 id="21-docker0">2.1、docker0</h3>
-<p> 默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<p>  默认情况下，在安装启动docker之后就会创建docker0。用作容器与容器、容器与外网之间通信的桥梁。</p>
-<h3 id="22-vethxxx">2.2、vethxxx</h3>
-<p>  首先宿主机上创建一对虚拟网卡veth pair设备，veth设备总是成对出现的，形成一个通信通道，数据传输就是基于这个链路的，veth设备常用来连接两个网络设备。</p>
-<p>  Docker将veth pair设备的一端放在容器中，并命名为eth0,然后将另一端加入docker0网桥中，可以通过brctl show命令查看。</p>
-<p>  从docker0字网卡中分配一个IP到给容器使用，并设置docker0的IP地址为容器默认网关。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec 容器名 ip a		</span><br><span class="line">--可以在容器中看到eth0编号和在本地使用ip a看到的编号相同，表示为同一组veth pair设备</span><br><span class="line">brctl show			--执行此命令可以看到连接到docker0的容器对应的network信息</span><br></pre></td></tr></table></figure>
-<p>   此时容器IP与宿主机是可以通信的，宿主机也可以访问容器中的ip地址，在bridge模式下，连接同一网桥的容器之间可以相互通信，同时容器可以访问外网，但是其他物理机不能访问docker容器IP，需要通过NAT将容器的IP的port映射为宿主机的IP和port。</p>
-<h2 id="3-容器与外网之间的通信">3、容器与外网之间的通信</h2>
-<img src="/技术分享/docker网络/容器与外网通信.png" title="docker网络">
-<p>1、首先linux主机是可以通过eth0访问外网 internet</p>
-<p>2、容器里面的数据包，要访问外网，会进过docker0 这个bridge。在此处做一个网络地址转换（NAT），转换成eth0的地址，然后作为linux主机的一个数据包被发送到外网，自然就访问了外网。</p>
-<p>3、此处的NAT网络地址转换是通过iptables来实现的。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE</span><br></pre></td></tr></table></figure>
-<p>   这条规则会将源地址为172.17.0.0/16的包（也就是从Docker容器产生的包），进行源地址转换，转换成主机网卡的地址。这么说可能不太好理解，举一个例子说明一下。</p>
-<p>   假设主机有一块网卡为eth0，IP地址为10.10.101.105/24，网关为10.10.101.254。从主机上一个IP为172.17.0.1/16的容器中ping百度（180.76.3.151）。IP包首先从容器发往自己的默认网关docker0，包到达docker0后，也就到达了主机上。然后会查询主机的路由表，发现包应该从主机的eth0发往主机的网关10.10.105.254/24。接着包会转发给eth0，并从eth0发出去（主机的ip_forward转发应该已经打开）。这时候，上面的Iptable规则就会起作用，对包做SNAT转换 ( 源地址转换 )，将源地址换为eth0的地址。这样，在外界看来，这个包就是从10.10.101.105上发出来的，Docker容器对外是不可见的。</p>
-<p>   反之，假如对一个web容器做端口映射，-p 80:80，那么容器启动之后，在iptables规则中则会生成一条类似如下的规则。也就是对包做了一个DNAT转换（目的地址转换），将访问主机80端口的包转换成容器的ip地址，从而发往容器。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A DOCKER ! -i docker0 -p tcp -m tcp --dport 80 -j DNAT --to-destination 172.17.0.5:80</span><br></pre></td></tr></table></figure>
+                <h3 id="1-安装">1、安装</h3>
+<h4 id="11-windows下载exe文件">1.1、windows下载exe文件</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://cdn.cypress.io/desktop/3.3.1/win32-x64/cypress.zip</span><br></pre></td></tr></table></figure>
+<h4 id="12-通过nodejs-npm进行安装">1.2、通过nodejs、npm进行安装</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#安装nodejs,进入nodejs官网下载windows版本的软件包，点击安装</span><br><span class="line"></span><br><span class="line">#执行下面的命令安装cypress</span><br><span class="line">npm install cypress --save-dev</span><br><span class="line"></span><br><span class="line">#模块卸载</span><br><span class="line">npm uninstall cypress --save</span><br></pre></td></tr></table></figure>
+<h4 id="13-报错解决">1.3、报错解决</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(1)、没有package.json</span><br><span class="line"></span><br><span class="line">npm WARN saveError ENOENT: no such file or directory, open  &apos;C:\Users\xx\Desktop\测试环境\cypress\package.json&apos;</span><br><span class="line"></span><br><span class="line">解决：npm init -y</span><br><span class="line"></span><br><span class="line">（2）、名字重叠</span><br><span class="line"></span><br><span class="line">npm ERR! code ENOSELF</span><br><span class="line"></span><br><span class="line">解决：打开package.json，修改name对应的字段，不要和文件夹名重复即可。</span><br></pre></td></tr></table></figure>
+<h4 id="14-启动cypress">1.4、启动cypress</h4>
+<p>如果是直接下载的cypress.exe，那么先双击cypress.exe控制台，将写好的cypress脚本拖动到控制台，找到要运行的脚本，双击进行运行。</p>
+<p>如果是通过npm方式安装，那么就需要通过启动命令开打开cypress控制台窗口。<br>
+在npm安装目录下会生成node_module目录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./node_modules/.bin/cypress open        --启动</span><br></pre></td></tr></table></figure>
+<h3 id="2-配置修改">2、配置修改</h3>
+<h4 id="21-cypressjson-配置文件">2.1、cypress.json 配置文件</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;chromeWebSecurity&quot;: false,</span><br><span class="line">  &quot;reporter&quot;: &quot;mochawesome&quot;,</span><br><span class="line">  &quot;reporterOptions&quot;: &#123;</span><br><span class="line">  &quot;overwrite&quot;: false,</span><br><span class="line">  &quot;html&quot;: true,</span><br><span class="line">  &quot;json&quot;: false</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">备注：</span><br><span class="line">（1）、chromeWebSecurity    --解决跨域问题</span><br><span class="line">（2）、reporter             --生成报告配置，可选格式html和json</span><br></pre></td></tr></table></figure>
+<h3 id="3-插件">3、插件</h3>
+<h4 id="31-安装npm报告插件">3.1、安装npm报告插件</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev mocha@5.2.0 mochawesome mochawesome-merge mochawesome-report-generator</span><br></pre></td></tr></table></figure>
+<h4 id="32-生成报告">3.2、生成报告</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./node_modules/.bin/cypress run --spec &quot;.\cypress\integration\recorder.js&quot; --browser chrome --reporter mochawesome</span><br></pre></td></tr></table></figure>
+<h3 id="4-脚本录制">4、脚本录制</h3>
+<p>在浏览器中搜索安装Cypress recorder，可通过该插件完成脚本录制。再在录制脚本的基础上进行修改测试。</p>
+<h3 id="5-对比cypress和selenium">5、对比Cypress和selenium</h3>
+<p>（1）、录制支持</p>
+<p>两者都提供录制，且两者的录制脚本都需要手动进行修改调试。只是selenium对于录制脚本的支持度不高，录制出来的脚本调试难度更大，而cypress录制出来的脚本能比较轻松的进行修改回放。</p>
+<p>（2）、报告<br>
+selenium 本身不提供报告，只能借助于测试框架TestNG等进行报告输出。cypress报告输出也需要借助其他插件。只是前者需要学习TestNG框架的内容，后者直接使用命令调用插件即可。</p>
+<p>（3）、语言不同</p>
+<p>cypress中各种操作是写到js脚本中，而selenium则是用java进行编写。<br>
+所以cypress需要进行安装，而selenium则只需要在创建的java项目中导入依赖的jar包即可。</p>
+<p>（4）、浏览器操作程度</p>
+<p>cypress不能操控浏览器，例如不能切换浏览器的tab页，只能通过新页面的链接来进行访问，链接只能写死（录制时可以直接获取链接），从而导致可移植性较差，如果更换账号之前的脚本则无法适用，需要对脚本进行修改。</p>
+<p>selenium则可以控制浏览器在不同窗口进行切换，以及关闭当前窗口等。</p>
 
                 
 
@@ -253,13 +252,9 @@
                 <!-- Pager -->
                 <ul class="pager">
                     
-                        <li class="previous">
-                            <a href="/技术分享/harbor安装/" data-toggle="tooltip" data-placement="top" title="harbor安装">&larr; Previous Post</a>
-                        </li>
-                    
                     
                         <li class="next">
-                            <a href="/技术分享/nextcloud搭建个人网盘/" data-toggle="tooltip" data-placement="top" title="nextcloud搭建个人网盘">Next Post &rarr;</a>
+                            <a href="/技术分享/自动化测试之Selenium/" data-toggle="tooltip" data-placement="top" title="Selenium">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -334,7 +329,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-docker网络基础"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;docker&#x7F51;&#x7EDC;&#x57FA;&#x7840;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11-查看docker网络"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;&#x67E5;&#x770B;docker&#x7F51;&#x7EDC;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12-查看网络详细信息"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#13-查看docker网络接口"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">1.3&#x3001;&#x67E5;&#x770B;docker&#x7F51;&#x7EDC;&#x63A5;&#x53E3;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#14-新建docker-network"><span class="toc-nav-number">1.4.</span> <span class="toc-nav-text">1.4&#x3001;&#x65B0;&#x5EFA;docker network</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#15-新建docker时指定bridge"><span class="toc-nav-number">1.5.</span> <span class="toc-nav-text">1.5&#x3001;&#x65B0;&#x5EFA;docker&#x65F6;&#x6307;&#x5B9A;bridge</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#16-修改已经运行的docker连接的network"><span class="toc-nav-number">1.6.</span> <span class="toc-nav-text">1.6&#x3001;&#x4FEE;&#x6539;&#x5DF2;&#x7ECF;&#x8FD0;&#x884C;&#x7684;docker&#x8FDE;&#x63A5;&#x7684;network</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-容器与容器之间的通信"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x5BB9;&#x5668;&#x4E0E;&#x5BB9;&#x5668;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x4FE1;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#21-docker0"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;docker0</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#22-vethxxx"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;vethxxx</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-容器与外网之间的通信"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x5BB9;&#x5668;&#x4E0E;&#x5916;&#x7F51;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x4FE1;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-安装"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x5B89;&#x88C5;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#11-windows下载exe文件"><span class="toc-nav-number">1.1.</span> <span class="toc-nav-text">1.1&#x3001;windows&#x4E0B;&#x8F7D;exe&#x6587;&#x4EF6;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#12-通过nodejs-npm进行安装"><span class="toc-nav-number">1.2.</span> <span class="toc-nav-text">1.2&#x3001;&#x901A;&#x8FC7;nodejs&#x3001;npm&#x8FDB;&#x884C;&#x5B89;&#x88C5;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#13-报错解决"><span class="toc-nav-number">1.3.</span> <span class="toc-nav-text">1.3&#x3001;&#x62A5;&#x9519;&#x89E3;&#x51B3;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#14-启动cypress"><span class="toc-nav-number">1.4.</span> <span class="toc-nav-text">1.4&#x3001;&#x542F;&#x52A8;cypress</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-配置修改"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x914D;&#x7F6E;&#x4FEE;&#x6539;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#21-cypressjson-配置文件"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;cypress.json &#x914D;&#x7F6E;&#x6587;&#x4EF6;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-插件"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x63D2;&#x4EF6;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#31-安装npm报告插件"><span class="toc-nav-number">3.1.</span> <span class="toc-nav-text">3.1&#x3001;&#x5B89;&#x88C5;npm&#x62A5;&#x544A;&#x63D2;&#x4EF6;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#32-生成报告"><span class="toc-nav-number">3.2.</span> <span class="toc-nav-text">3.2&#x3001;&#x751F;&#x6210;&#x62A5;&#x544A;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-脚本录制"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x811A;&#x672C;&#x5F55;&#x5236;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-对比cypress和selenium"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x5BF9;&#x6BD4;Cypress&#x548C;selenium</span></a></li></ol>
         
         </div>
       </aside>
@@ -354,7 +349,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#docker" title="docker">docker</a>
+                          <a class="tag" href="/tags/#自动化测试" title="自动化测试">自动化测试</a>
                         
                     </div>
                 </section>
