@@ -141,14 +141,14 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -370,17 +370,16 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes核心服务/">
+    <a href="/技术分享/kubernetes命令集合/">
         <h2 class="post-title">
-            kubernetes核心服务
+            kubernetes命令集合
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、ETCD （主节点）
-  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
-（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
+            1、获取kubernetes资源
+12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
         </div>
     </a>
     
@@ -400,16 +399,17 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes命令集合/">
+    <a href="/技术分享/kubernetes核心服务/">
         <h2 class="post-title">
-            kubernetes命令集合
+            kubernetes核心服务
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、获取kubernetes资源
-12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
+            1、ETCD （主节点）
+  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
+（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
         </div>
     </a>
     
@@ -461,19 +461,22 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/nextcloud搭建个人网盘/">
+    <a href="/技术分享/docker网络/">
         <h2 class="post-title">
-            nextcloud搭建个人网盘
+            docker网络
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、搭建基础lnmp环境
-
-此处我用的是lnmp一键安装包，也可以自行搭建lnmp环境
-
-12345wget http://soft.vpser.net/lnmp/lnmp1.5.tar.gztar zxf lnmp1.5.tar.gz &amp;&amp; cd lnmp1.5 &amp;&amp; ./install.sh lnmp备注：mysql选择5.7、php选择7.0以上、其余选......
+            1、docker网络基础
+1.1、查看docker网络
+1docker network ls
+1.2、查看网络详细信息
+1docker network inspect		--可以看到当前虚机所有容器、容器所处网段
+1.3、查看docker网络接口
+1ip a					  --可以看到两种接口docker0和vethxxx(两种接口作用暂且不表，下文进行讲解)
+1.4、新建docker net......
         </div>
     </a>
     
@@ -483,7 +486,7 @@
         </p>
         <div class="tags">
             
-              <a href="/tags/#nextcloud" title="nextcloud">nextcloud</a>
+              <a href="/tags/#docker" title="docker">docker</a>
             
         </div>
     
@@ -573,13 +576,13 @@ Type: volume
     <div class="tags">
         
             
+            <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
+            
+        
+            
         
             
             <a href="/tags/#docker" title="docker" rel="6">docker</a>
-            
-        
-            
-            <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
             
         
             
@@ -659,11 +662,11 @@ Type: volume
         </li>
       
         <li>
-          <a href="/技术分享/ELK之logstash日志过滤/">logstash日志过滤</a>
+          <a href="/技术分享/ELK之es集群/">es集群</a>
         </li>
       
         <li>
-          <a href="/技术分享/ELK之es集群/">es集群</a>
+          <a href="/技术分享/kubernetes redis集群/">redis集群搭建</a>
         </li>
       
     </ul>
