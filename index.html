@@ -134,13 +134,6 @@
 
                         
                         <li>
-                            <a href="/archive/">Archives</a>
-                        </li>
-                        
-                    
-
-                        
-                        <li>
                             <a href="/about/">About</a>
                         </li>
                         
@@ -149,6 +142,13 @@
                         
                         <li>
                             <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
                         </li>
                         
                     
@@ -208,6 +208,37 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/技术分享/kubernetes mysql主从复制/">
+        <h2 class="post-title">
+            mysql主从复制
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、下载mysql官网镜像文件
+1https://github.com/docker-library/mysql/blob/master
+2、修改配置文件构建mysql-master镜像
+1234#vim DockerfileRUN sed -i &apos;/\[mysqld\]/a server-id=1\nlog-bin&apos; /etc/mysql/mysql.conf.d/my......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-06-15
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+            
+        </div>
+    
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -278,6 +309,37 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
 
 <div class="post-preview">
 
+    <a href="/技术分享/ELK之logstash日志过滤/">
+        <h2 class="post-title">
+            logstash日志过滤
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            1、logstash内置正则
+1https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
+2、grok正则捕获插件
+说明：grok是一个十分强大的logstash filter插件，他可以通过正则解析任意文本，将非结构化日志数据转换成结构化和方便查询的结构。他是目前logstash 中解析非结构化日志数据最好......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-05-10
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#ELK" title="ELK">ELK</a>
+            
+        </div>
+    
+
+</div>
+<hr>
+
+<div class="post-preview">
+
     <a href="/技术分享/ELK之es集群/">
         <h2 class="post-title">
             es集群
@@ -308,18 +370,17 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
 
 <div class="post-preview">
 
-    <a href="/技术分享/ELK之logstash日志过滤/">
+    <a href="/技术分享/kubernetes redis集群/">
         <h2 class="post-title">
-            logstash日志过滤
+            redis集群搭建
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、logstash内置正则
-1https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
-2、grok正则捕获插件
-说明：grok是一个十分强大的logstash filter插件，他可以通过正则解析任意文本，将非结构化日志数据转换成结构化和方便查询的结构。他是目前logstash 中解析非结构化日志数据最好......
+            1、安装创建NFS（数据持久化）
+2、创建PV
+1234567891011121314apiVersion: v1kind: PersistentVolumemetadata:  name: nfs-pv1spec:  capacity:    storage: 200M  accessModes:    - ReadWriteMany  nfs:    server: 192.168.56......
         </div>
     </a>
     
@@ -329,7 +390,7 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
         </p>
         <div class="tags">
             
-              <a href="/tags/#ELK" title="ELK">ELK</a>
+              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
             
         </div>
     
@@ -468,71 +529,6 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/技术分享/kubernetes健康检查/">
-        <h2 class="post-title">
-            kubernetes 健康检查
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、健康检查探针
-1.1、HTTP GET探针
-  HTTP GET探针对容器的 IP 地址（你指定的端口和路径）执行 HTTP GET 请求。
-  如果探测器收到响应，并且响应状态码不代表错误（换句话说，如果HTTP响应状态码是2xx或3xx), 则认为探测成功。如果服务器返回错误响应状态码或者根本没有响应，那么探测就被认为是失败的，容器将被重新启动。
-1234livenessProbe:......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-17
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/kubernetesAPIServer/">
-        <h2 class="post-title">
-            kubernetes API Server
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、如何访问 kubernetes API ？
-1.1、本地端口
-（1）、该端口用于接收HTTP请求
-（2）、该端口默认值为8080，可以通过API Server的启动参数“–insecure-port”的值来修改默认值
-（3）、默认的IP地址为“localhost”，可以通过启动参数“–insecure-bind-address”的值来修改该IP地址
-（4）、非认证或授权的HTTP请求通过......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-17
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -574,17 +570,17 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
     <div class="tags">
         
             
-            <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
-            
-        
-            
         
             
             <a href="/tags/#docker" title="docker" rel="6">docker</a>
             
         
             
-            <a href="/tags/#kubernetes" title="kubernetes" rel="9">kubernetes</a>
+            <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
+            
+        
+            
+            <a href="/tags/#kubernetes" title="kubernetes" rel="11">kubernetes</a>
             
         
             
@@ -648,6 +644,10 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
     <ul>
       
         <li>
+          <a href="/技术分享/kubernetes mysql主从复制/">mysql主从复制</a>
+        </li>
+      
+        <li>
           <a href="/技术分享/自动化测试之cypress/">Cypress</a>
         </li>
       
@@ -656,15 +656,11 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
         </li>
       
         <li>
-          <a href="/技术分享/ELK之es集群/">es集群</a>
-        </li>
-      
-        <li>
           <a href="/技术分享/ELK之logstash日志过滤/">logstash日志过滤</a>
         </li>
       
         <li>
-          <a href="/技术分享/JMeter/">JMeter</a>
+          <a href="/技术分享/ELK之es集群/">es集群</a>
         </li>
       
     </ul>
@@ -679,7 +675,7 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
         
     <h5>ARCHIVES</h5>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
     </div>
 
         <hr>
@@ -688,7 +684,7 @@ WebDriver是基于selenium设计的操作浏览器的一套API，针对多种编
 
     <h5>categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">22</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">24</span></li></ul>
     </div>
 
         <hr>

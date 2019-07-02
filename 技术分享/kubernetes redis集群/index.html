@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/ironman-draw.png">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <title>
+        
+          redis集群搭建 - 邓家波 | Blog
+        
+    </title>
+
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/kubernetes redis集群/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS --> 
+    <link rel="stylesheet" href="/css/beantech.min.css">
+
+    <link rel="stylesheet" href="/css/donate.css">
+    
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <link rel="stylesheet" href="/css/widget.css">
+
+    <link rel="stylesheet" href="/css/rocket.css">
+
+    <link rel="stylesheet" href="/css/signature.css">
+
+    <link rel="stylesheet" href="/css/toc.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            background-image: url('/img/article_header/article_bg.jpg')
+            /*post*/
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+                            
+                        </div>
+                        <h1>redis集群搭建</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by 邓家波 on
+                            2019-05-10
+                        </span>
+                    </div>
+                
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">邓家波</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Modify by Yu-Hsuan Yen -->
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h3 id="1-安装创建nfs数据持久化">1、安装创建NFS（数据持久化）</h3>
+<h3 id="2-创建pv">2、创建PV</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: PersistentVolume</span><br><span class="line">metadata:</span><br><span class="line">  name: nfs-pv1</span><br><span class="line">spec:</span><br><span class="line">  capacity:</span><br><span class="line">    storage: 200M</span><br><span class="line">  accessModes:</span><br><span class="line">    - ReadWriteMany</span><br><span class="line">  nfs:</span><br><span class="line">    server: 192.168.56.102                    --根据实际情况修改此处配置</span><br><span class="line">    path: &quot;/usr/local/k8s/redis/pv1&quot;</span><br><span class="line"></span><br><span class="line">备注：根据实际情况增加PV数量，此处只是以其中一个pv.yaml作为学习模板</span><br></pre></td></tr></table></figure>
+<h3 id="3-创建configmap">3、创建ConfigMap</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#redis.conf</span><br><span class="line"></span><br><span class="line">appendonly yes</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /var/lib/redis/nodes.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">dir /var/lib/redis</span><br><span class="line">port 6379</span><br><span class="line"></span><br><span class="line">kubectl create configmap redis-conf --from-file=redis.conf</span><br></pre></td></tr></table></figure>
+<h3 id="4-创建headless-service">4、创建headless service</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#headless-service.yaml</span><br><span class="line"></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-service</span><br><span class="line">  labels:</span><br><span class="line">    app: redis</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">  - name: redis-port</span><br><span class="line">    port: 6379</span><br><span class="line">  clusterIP: None</span><br><span class="line">  selector:</span><br><span class="line">    app: redis</span><br><span class="line">    appCluster: redis-cluster</span><br></pre></td></tr></table></figure>
+<h3 id="5-创建redis-statefulset">5、创建Redis statefulSet</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">#redis.yaml</span><br><span class="line"></span><br><span class="line">apiVersion: apps/v1beta1</span><br><span class="line">kind: StatefulSet</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-app</span><br><span class="line">spec:</span><br><span class="line">  serviceName: &quot;redis-service&quot;</span><br><span class="line">  replicas: 6</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: redis</span><br><span class="line">        appCluster: redis-cluster</span><br><span class="line">    spec:</span><br><span class="line">      terminationGracePeriodSeconds: 20</span><br><span class="line">      affinity:                --配置pod反亲和性，让redis各个pod尽量不在同一个node上，保证服务可用性</span><br><span class="line">        podAntiAffinity:</span><br><span class="line">          preferredDuringSchedulingIgnoredDuringExecution:</span><br><span class="line">          - weight: 100</span><br><span class="line">            podAffinityTerm:</span><br><span class="line">              labelSelector:</span><br><span class="line">                matchExpressions:</span><br><span class="line">                - key: app</span><br><span class="line">                  operator: In</span><br><span class="line">                  values:</span><br><span class="line">                  - redis</span><br><span class="line">              topologyKey: kubernetes.io/hostname</span><br><span class="line">      containers:</span><br><span class="line">      - name: redis</span><br><span class="line">        image: &quot;redis&quot;</span><br><span class="line">        command:</span><br><span class="line">          - &quot;redis-server&quot;</span><br><span class="line">        args:</span><br><span class="line">          - &quot;/etc/redis/redis.conf&quot;</span><br><span class="line">          - &quot;--protected-mode&quot;</span><br><span class="line">          - &quot;no&quot;</span><br><span class="line">        resources:</span><br><span class="line">          requests:</span><br><span class="line">            cpu: &quot;100m&quot;</span><br><span class="line">            memory: &quot;100Mi&quot;</span><br><span class="line">        ports:</span><br><span class="line">            - name: redis</span><br><span class="line">              containerPort: 6379</span><br><span class="line">              protocol: &quot;TCP&quot;</span><br><span class="line">            - name: cluster</span><br><span class="line">              containerPort: 16379</span><br><span class="line">              protocol: &quot;TCP&quot;</span><br><span class="line">        volumeMounts:                --挂载配置文件configmap</span><br><span class="line">          - name: &quot;redis-conf&quot;</span><br><span class="line">            mountPath: &quot;/etc/redis&quot;</span><br><span class="line">          - name: &quot;redis-data&quot;</span><br><span class="line">            mountPath: &quot;/var/lib/redis&quot;</span><br><span class="line">      volumes:</span><br><span class="line">      - name: &quot;redis-conf&quot;</span><br><span class="line">        configMap:</span><br><span class="line">          name: &quot;redis-conf&quot;</span><br><span class="line">          items:</span><br><span class="line">            - key: &quot;redis.conf&quot;</span><br><span class="line">              path: &quot;redis.conf&quot;</span><br><span class="line">  volumeClaimTemplates:    --根据此处配置自动创建pvc</span><br><span class="line">  - metadata:</span><br><span class="line">      name: redis-data</span><br><span class="line">    spec:</span><br><span class="line">      accessModes: [ &quot;ReadWriteMany&quot; ]</span><br><span class="line">      resources:</span><br><span class="line">        requests:</span><br><span class="line">          storage: 200M</span><br></pre></td></tr></table></figure>
+<p>备注：<br>
+redis应用启动好之后，每个pod应用都会有自己的域名，格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$(podname).$(service name).$(namespace).svc.cluster.local</span><br><span class="line">redis-app-0.redis-service.default.svc.cluster.local</span><br></pre></td></tr></table></figure>
+<h3 id="6-初始化redis集群">6、初始化redis集群</h3>
+<p>创建好6个Redis Pod后，我们还需要利用常用的Redis-tribe工具进行集群的初始化。</p>
+<p>初始化redis集群的思路：</p>
+<p>由于Redis集群必须在所有节点启动后才能进行初始化，而如果将初始化逻辑写入Statefulset中，则是一件非常复杂而且低效的行为。这里，本人不得不称赞一下原项目作者的思路，值得学习。也就是说，我们可以在K8S上创建一个额外的容器，专门用于进行K8S集群内部某些服务的管理控制。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl run -i --tty ubuntu --image=ubuntu --restart=Never /bin/bash</span><br></pre></td></tr></table></figure>
+<p>成功后，我们可以进入ubuntu容器中，原项目要求执行如下命令安装基本的软件环境：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br><span class="line">apt-get install -y vim wget python2.7 python-pip redis-tools dnsutils</span><br></pre></td></tr></table></figure>
+<p>但是，需要注意的是，在我们天朝，执行上述命令前需要提前做一件必要的工作——换源，否则你懂得。我们使用阿里云的Ubuntu源，执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:/# cat &gt; /etc/apt/sources.list &lt;&lt; EOF</span><br><span class="line">&gt; deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line">&gt; deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line">&gt;</span><br><span class="line">&gt; deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line">&gt; deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line">&gt;</span><br><span class="line">&gt; deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line">&gt; deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line">&gt;</span><br><span class="line">&gt; deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse</span><br><span class="line">&gt; deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse</span><br><span class="line">&gt;</span><br><span class="line">&gt; deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line">&gt; deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line">&gt; EOF</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">#redis-trib安装（此处提供两种安装方法）</span><br><span class="line"></span><br><span class="line">（1）、pip</span><br><span class="line"></span><br><span class="line">#此处如果直接使用pip install redis-trib会安装redis-trib 0.6的版本，这个版本执行下面的命令会报错，所以此处安装历史版本0.5</span><br><span class="line">pip install redis-trib==0.5.1 </span><br><span class="line"></span><br><span class="line">#创建只有master节点的集群</span><br><span class="line">redis-trib.py create \</span><br><span class="line">  `dig +short redis-app-0.redis-service.default.svc.cluster.local`:6379 \</span><br><span class="line">  `dig +short redis-app-1.redis-service.default.svc.cluster.local`:6379 \</span><br><span class="line">  `dig +short redis-app-2.redis-service.default.svc.cluster.local`:6379</span><br><span class="line"></span><br><span class="line">#为每一个master节点创建一个slave节点</span><br><span class="line">redis-trib.py replicate \</span><br><span class="line">  --master-addr `dig +short redis-app-0.redis-service.default.svc.cluster.local`:6379 \</span><br><span class="line">  --slave-addr `dig +short redis-app-3.redis-service.default.svc.cluster.local`:6379</span><br><span class="line"></span><br><span class="line">redis-trib.py replicate \</span><br><span class="line">  --master-addr `dig +short redis-app-1.redis-service.default.svc.cluster.local`:6379 \</span><br><span class="line">  --slave-addr `dig +short redis-app-4.redis-service.default.svc.cluster.local`:6379</span><br><span class="line"></span><br><span class="line">redis-trib.py replicate \</span><br><span class="line">  --master-addr `dig +short redis-app-2.redis-service.default.svc.cluster.local`:6379 \</span><br><span class="line">  --slave-addr `dig +short redis-app-5.redis-service.default.svc.cluster.local`:6379</span><br><span class="line"></span><br><span class="line">（2）、源码</span><br><span class="line"></span><br><span class="line">#下载redis源码安装包</span><br><span class="line">wget http://download.redis.io/releases/redis-4.0.14.tar.gz</span><br><span class="line">#进入源码目录</span><br><span class="line">cd redis-4.0.14/src    </span><br><span class="line">#把redis-trib.rb拷贝到/usr/bin目录下</span><br><span class="line">cp redis-trib.rb /usr/bin</span><br><span class="line">#查看redis-trib.rb的帮助文档</span><br><span class="line">redis-trib.rb</span><br><span class="line">#创建redis集群 （按照下面创建的集群为三个master三个slave）</span><br><span class="line"></span><br><span class="line">redis-trib.rb create --replicas 1 `dig +short redis-app-0.redis-service.default.svc.cluster.local`:6379 `dig +short redis-app-3.redis-service.default.svc.cluster.local`:6379 `dig +short redis-app-1.redis-service.default.svc.cluster.local`:6379 `dig +short redis-app-4.redis-service.default.svc.cluster.local`:6379 `dig +short redis-app-2.redis-service.default.svc.cluster.local`:6379 `dig +short redis-app-5.redis-service.default.svc.cluster.local`:6379</span><br><span class="line"></span><br><span class="line">--replicas参数指定集群中每个主节点配备几个从节点，这里设置为1。</span><br></pre></td></tr></table></figure>
+<h3 id="7-检验">7、检验</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#进入redis容器</span><br><span class="line">kubectl exec -it redis-app-2 /bin/bash</span><br><span class="line">#进入redis</span><br><span class="line">/usr/local/bin/redis-cli -c</span><br><span class="line">#查看redis集群nodes</span><br><span class="line">cluster nodes</span><br><span class="line">#查看redis集群info</span><br><span class="line">cluster info</span><br><span class="line">#查看登录节点角色</span><br><span class="line">role</span><br></pre></td></tr></table></figure>
+<h3 id="8-后续">8、后续</h3>
+<p>（1）、根据测试结果，如果删除其中一个master节点，kubernetes会自动重启，再次进入重启后的redis，会自动重新加入集群。并且角色不变。</p>
+<p>（2）、在master节点中创建的keys，在slave中可以查看到对应的值。同理，在slave节点中创建的keys在master节点中也可以查看到对应的keys和值。</p>
+<p>（3）、删除master节点，在master启动过程中，slave节点角色不会发生变化。也就是不会自动完成主从切换。</p>
+
+                
+
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                        <li class="previous">
+                            <a href="/技术分享/ELK之es集群/" data-toggle="tooltip" data-placement="top" title="es集群">&larr; Previous Post</a>
+                        </li>
+                    
+                    
+                        <li class="next">
+                            <a href="/技术分享/JMeter/" data-toggle="tooltip" data-placement="top" title="JMeter">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                <br>
+
+                <!--打赏-->
+                
+                    <div class="reward">
+                        <div class="reward-button">赏 <span class="reward-code"> 
+                            <span class="alipay-code"> <img class="alipay-img" src="/img/pay/alipay.png"><b>支付宝打赏</b></span> 
+                            <span class="wechat-code"> <img class="wechat-img" src="/img/pay/wechatpay.jpg"><b>微信打赏</b> </span>
+                            </span></div>
+                        <p class="reward-notice">赞赏一下</p>
+                    </div>
+                
+                <!--打赏-->
+
+                <br>
+                <!--分享-->
+                
+                    <div class="social-share"  data-wechat-qrcode-helper="" align="center"></div>
+                    <!--  css & js -->
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/social-share.js/1.0.16/css/share.min.css">
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/social-share.js/1.0.16/js/social-share.min.js"></script>
+                
+                <!--分享-->
+                <br>                       
+                
+                <!-- require APlayer -->
+                
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+                <script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/meting@1.2/dist/Meting.min.js"></script>
+
+                <div class="aplayer"
+                    data-id="2423410161"
+                    data-server="netease"
+                    data-type="playlist"
+                    data-fixed="true" >
+                </div>
+                
+
+                <!-- duoshuo Share start -->
+                
+                <!-- 多说 Share end-->
+
+                <!-- 多说评论框 start -->
+                
+                <!-- 多说评论框 end -->
+
+                <!-- disqus comment start -->
+                
+                <!-- disqus comment end -->
+
+                
+
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+  
+    <style>
+      span.toc-nav-number{
+        display: none
+      }
+    </style>
+  
+    
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-安装创建nfs数据持久化"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x5B89;&#x88C5;&#x521B;&#x5EFA;NFS&#xFF08;&#x6570;&#x636E;&#x6301;&#x4E45;&#x5316;&#xFF09;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-创建pv"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x521B;&#x5EFA;PV</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-创建configmap"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x521B;&#x5EFA;ConfigMap</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-创建headless-service"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x521B;&#x5EFA;headless service</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-创建redis-statefulset"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x521B;&#x5EFA;Redis statefulSet</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-初始化redis集群"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;&#x521D;&#x59CB;&#x5316;redis&#x96C6;&#x7FA4;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7-检验"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">7&#x3001;&#x68C0;&#x9A8C;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#8-后续"><span class="toc-nav-number">8.</span> <span class="toc-nav-text">8&#x3001;&#x540E;&#x7EED;</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+                
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                          <a class="tag" href="/tags/#kubernetes" title="kubernetes">kubernetes</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/dengjiabo">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 邓家波 2019 
+					<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+					<span id="busuanzi_container_page_pv">本文总阅读量<span id="busuanzi_value_page_pv"></span>次</span>
+                    <br>	
+                    Theme by <a href="http://beantech.org">BeanTech</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="http://www.huweihuang.com">胡伟煌</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huweihuang&repo=hexo-theme-huweihuang&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("www.dengjiabo.cn/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = 'xxx';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+<!-- Image to hack wechat -->
+<img src="www.dengjiabo.cn/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
