@@ -14,11 +14,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <title>
         
-          es集群 - 邓家波 | Blog
+          Istio demo环境搭建 - 邓家波 | Blog
         
     </title>
 
-    <link rel="canonical" href="www.dengjiabo.cn/技术分享/ELK之es集群/">
+    <link rel="canonical" href="www.dengjiabo.cn/技术分享/Istio demo环境搭建/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -88,14 +88,14 @@
                     <div class="post-heading">
                         <div class="tags">
                             
-                              <a class="tag" href="/tags/#ELK" title="ELK">ELK</a>
+                              <a class="tag" href="/tags/#Istio" title="Istio">Istio</a>
                             
                         </div>
-                        <h1>es集群</h1>
+                        <h1>Istio demo环境搭建</h1>
                         <h2 class="subheading"></h2>
                         <span class="meta">
                             Posted by 邓家波 on
-                            2019-05-10
+                            2019-04-10
                         </span>
                     </div>
                 
@@ -212,35 +212,29 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h3 id="1-es集群简介">1、ES集群简介</h3>
-<p>一个节点(node)就是一个Elasticsearch实例，而一个集群(cluster)由一个或多个节点组成，<a href="http://xn--cluster-2d5k52q4nhs2wrt5a9b6bmlb.name" target="_blank" rel="noopener">它们具有相同的cluster.name</a>，它们协同工作，分享数据和负载。当加入新的节点或者删除一个节点时，集群就会感知到并平衡数据。</p>
-<p>集群中一个节点会被选举为主节点(master),它将临时管理集群级别的一些变更，例如新建或删除索引、增加或移除节点等。主节点不参与文档级别的变更或搜索，这意味着在流量增长的时候，该主节点不会成为集群的瓶颈。</p>
-<p>做为用户，我们能够与集群中的任何节点通信，包括主节点。每一个节点都知道文档存在于哪个节点上，它们可以转发请求到相应的节点上。我们访问的节点负责收集各节点返回的数据，最后一起返回给客户端。这一切都由Elasticsearch处理。</p>
-<h3 id="2-es集群角色">2、ES集群角色</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">node.master: true                --这个属性表示节点是否具有成为主节点的资格,注意：此属性的值为true，并不意味着这个节点就是主节点。因为真正的主节点，是由多个具有主节点资格的节点进行选举产生的。所以，这个属性只是代表这个节点是不是具有主节点选举资格</span><br><span class="line"></span><br><span class="line">node.data: false                 --这个属性表示节点是否存储数据</span><br><span class="line"></span><br><span class="line">node.ingest: false               --该角色等同于client，处理用户请求，实现请求转发，负载均衡等功能</span><br></pre></td></tr></table></figure>
-<h4 id="21-组合一">2.1、组合一</h4>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.master: true</span><br><span class="line">node.data: true</span><br><span class="line">node.ingest: true</span><br></pre></td></tr></table></figure>
-<p>这种组合表示这个节点既有成为主节点的资格，又可以存储数据，还可以作为预处理节点，这个时候如果某个节点被选举成为了真正的主节点，那么他还要存储数据，这样对于这个节点的压力就比较大了。</p>
-<p>elasticsearch 默认是：每个节点都是这样的配置，在测试环境下这样做没问题。实际工作中建议不要这样设置，这样相当于 主节点 和 数据节点 的角色混合到一块了。</p>
-<h4 id="22-组合二">2.2、组合二</h4>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.master: false</span><br><span class="line">node.data: true</span><br><span class="line">node.ingest: false</span><br></pre></td></tr></table></figure>
-<p>这种组合表示这个节点没有成为主节点的资格，也就不参与选举，只会存储数据。这个节点我们称为 data(数据)节点。在集群中需要单独设置几个这样的节点负责存储数据。后期提供存储和查询服务。</p>
-<h4 id="23-组合三">2.3、组合三</h4>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.master: true</span><br><span class="line">node.data: false</span><br><span class="line">node.ingest: false</span><br></pre></td></tr></table></figure>
-<p>这种组合表示这个节点不会存储数据，有成为主节点的资格，可以参与选举，有可能成为真正的主节点。这个节点我们称为master节点。</p>
-<h4 id="24-组合四">2.4、组合四</h4>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.master: false</span><br><span class="line">node.data: false</span><br><span class="line">node.ingest: true</span><br></pre></td></tr></table></figure>
-<p>这种组合表示这个节点即不会成为主节点，也不会存储数据，这个节点的意义是作为一个 client(客户端)节点，主要是针对海量请求的时候可以进行负载均衡。</p>
-<h4 id="25-组合五">2.5、组合五</h4>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.master: false</span><br><span class="line">node.data: false</span><br><span class="line">node.ingest: false</span><br></pre></td></tr></table></figure>
-<p>这种配置为纯查询模式，节点只可以接受查询，对于查询数据量比较大的集群，配置这种节点可以有效的保护数据节点，防止datanode内存溢出。这种模式比模式四更节省资源，为纯查询模式。</p>
-<p>总结：</p>
-<p>（1）、建议集群中设置 3台 以上的节点作为 master 节点【node.master: true node.data: false node.ingest:false】，这些节点只负责成为主节点，维护整个集群的状态。</p>
-<p>（2）、再根据数据量设置一批（2台） data节点【node.master: false node.data: true node.ingest:false】，这些节点只负责存储数据，后期提供建立索引和查询索引的服务，这样的话如果用户请求比较频繁，这些节点的压力也会比较大。</p>
-<p>（3）、同理，如果对于性能要求比较高，也可以设置只负责查询的服务节点。</p>
-<h3 id="3-es数据库操作命令">3、ES数据库操作命令</h3>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">## es建立索引 </span><br><span class="line">curl -XPUT &apos;http://10.xx.xx.xx:9200/索引名称&apos;    --在k8s集群内部，ip部分为svc对应的ClusterIP</span><br><span class="line"></span><br><span class="line">## 查询es中的全部索引</span><br><span class="line">curl -XGET &apos;http://10.xx.xx.xx:9200/_cat/indices?v&apos;</span><br><span class="line">curl -XGET &apos;http://localhost:9200/_cat/indices?v&apos;</span><br><span class="line"></span><br><span class="line">## es查询单个索引内容</span><br><span class="line">curl -XGET &apos;http://10.xx.xx.xx:9200/索引名称/_search?pretty=true&apos;</span><br><span class="line">curl -XGET &apos;http://localhost:9200/itsm/_search?pretty=true&apos;</span><br><span class="line"></span><br><span class="line">## 带时间参数</span><br><span class="line">curl -XGET &apos;http://10.xx.xx.xx:9200/索引名称-2018-08-01/_search?pretty=true&apos;</span><br><span class="line"></span><br><span class="line">## 查询某索引下面的所有type</span><br><span class="line">curl -XGET &apos;http://localhost:9200/itsm/_mappings&apos;</span><br><span class="line"></span><br><span class="line">## es删除某个索引下的内容</span><br><span class="line">curl -XDELETE &apos;http://10.xx.xx.xx:9200/索引名称?pretty&apos;</span><br></pre></td></tr></table></figure>
-
+                <h3 id="1-基础环境说明">1、基础环境说明</h3>
+<p>（1）、高版本的kubernetes集群，本次测试集群版本为kubernetes 1.13。</p>
+<p>（2）、具备管理权限，能执行kubectl命令，能操作测试集群。</p>
+<p>（3）、kubernetes集群能够拉取istio镜像。</p>
+<h3 id="2-下载istio">2、下载istio</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L https://git.io/getLatestIstio | ISTIO_VERSION=1.1.2 sh -</span><br></pre></td></tr></table></figure>
+<h3 id="3-添加环境变量">3、添加环境变量</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export PATH=$PWD/bin:$PATH</span><br></pre></td></tr></table></figure>
+<h3 id="4-安装crd">4、安装CRD</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for i in install/kubernetes/helm/istio-init/files/crd*yaml; do kubectl apply -f $i; done</span><br><span class="line"></span><br><span class="line">执行上面的命令提交CRD给api server之后才能通过kubertenes创建istio资源</span><br></pre></td></tr></table></figure>
+<h3 id="5-安装istio">5、安装istio</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f install/kubernetes/istio-demo.yaml</span><br></pre></td></tr></table></figure>
+<h3 id="6-检查安装结果">6、检查安装结果</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[ss@node1 ~]$ kubectl get pod -n istio-system</span><br><span class="line">NAME                                      READY   STATUS      RESTARTS   AGE</span><br><span class="line">grafana-57586c685b-74glh                  1/1     Running     0          2m35s</span><br><span class="line">istio-citadel-7579f8fbb9-4c7cg            1/1     Running     0          2m34s</span><br><span class="line">istio-cleanup-secrets-1.1.2-bjnq7         0/1     Completed   0          2m36s</span><br><span class="line">istio-egressgateway-568dcfdd-gsx2b        1/1     Running     0          2m35s</span><br><span class="line">istio-galley-79d4c5d9f7-gl452             1/1     Running     0          2m35s</span><br><span class="line">istio-grafana-post-install-1.1.2-2zcx5    0/1     Completed   0          2m36s</span><br><span class="line">istio-ingressgateway-5fbcf4488f-f8k2s     1/1     Running     0          2m35s</span><br><span class="line">istio-pilot-bd75b9c7d-gmslw               2/2     Running     0          2m35s</span><br><span class="line">istio-policy-655f7f85b6-lvfxg             2/2     Running     2          2m35s</span><br><span class="line">istio-security-post-install-1.1.2-s52cg   0/1     Completed   0          2m36s</span><br><span class="line">istio-sidecar-injector-57f445c786-mk55x   1/1     Running     0          2m34s</span><br><span class="line">istio-telemetry-7ff4c757b4-z6p8h          2/2     Running     2          2m35s</span><br><span class="line">istio-tracing-656f9fc99c-llcx7            1/1     Running     0          2m34s</span><br><span class="line">kiali-69d6978b45-s8bc2                    1/1     Running     0          2m35s</span><br><span class="line">prometheus-66c9f5694-cngjn                1/1     Running     0          2m34s</span><br></pre></td></tr></table></figure>
+<h3 id="7-注入envoy容器">7、注入Envoy容器</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">##自动注入</span><br><span class="line">kubectl label namespace &lt;namespace&gt; istio-injection=enabled</span><br><span class="line">kubectl create -n &lt;namespace&gt; -f &lt;your-app-spec&gt;.yaml</span><br><span class="line"></span><br><span class="line">备注：只有打上对应的标签 istio-injection=enabled 之后，istio-sidecar-injector才会在启动应用时自动将 Envoy 容器注入应用 Pod 之中</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">##手动注入</span><br><span class="line">如果对应命名空间没有打上标签，则需要通过下面的方式手动将Envoy容器注入istioctl kube-inject -f &lt;your-app-spec&gt;.yaml | kubectl apply -f -</span><br></pre></td></tr></table></figure>
+<h3 id="8-为default命名空间打上-istio-injectionenabled-标签">8、为default命名空间打上 istio-injection=enabled 标签</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label namespace default istio-injection=enabled</span><br></pre></td></tr></table></figure>
+<h3 id="9-部署demo服务">9、部署demo服务</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml</span><br></pre></td></tr></table></figure>
+<h3 id="10-检查注入-envoy-容器的应用">10、检查注入 Envoy 容器的应用</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[ss@node1 kube]$ kubectl get pod</span><br><span class="line">NAME                              READY   STATUS    RESTARTS   AGE</span><br><span class="line">details-v1-69658dcf78-s2wr2       2/2     Running   0          94s</span><br><span class="line">productpage-v1-6b6798cb84-wg7lr   2/2     Running   0          94s</span><br><span class="line">ratings-v1-6f97d68b6-btpwq        2/2     Running   0          94s</span><br><span class="line">reviews-v1-7c98dcd6dc-652ht       2/2     Running   0          94s</span><br><span class="line">reviews-v2-6677766d47-8zzdt       2/2     Running   0          94s</span><br><span class="line">reviews-v3-79f9bcc54c-7kqng       2/2     Running   0          94s</span><br><span class="line"></span><br><span class="line">说明：默认情况下每个pod应用都只有一个容器，由于自动注入，现在则运行了两个容器</span><br></pre></td></tr></table></figure>
                 
 
                 <hr>
@@ -248,13 +242,9 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/技术分享/自动化测试之Selenium/" data-toggle="tooltip" data-placement="top" title="Selenium">&larr; Previous Post</a>
+                            <a href="/技术分享/docker常用命令/" data-toggle="tooltip" data-placement="top" title="docker常用命令">&larr; Previous Post</a>
                         </li>
                     
-                    
-                        <li class="next">
-                            <a href="/技术分享/ELK之logstash日志过滤/" data-toggle="tooltip" data-placement="top" title="logstash日志过滤">Next Post &rarr;</a>
-                        </li>
                     
                 </ul>
 
@@ -328,7 +318,7 @@
         <div id="toc" class="toc-article">
         <strong class="toc-title">Contents</strong>
         
-          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-es集群简介"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;ES&#x96C6;&#x7FA4;&#x7B80;&#x4ECB;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-es集群角色"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;ES&#x96C6;&#x7FA4;&#x89D2;&#x8272;</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#21-组合一"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">2.1&#x3001;&#x7EC4;&#x5408;&#x4E00;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#22-组合二"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">2.2&#x3001;&#x7EC4;&#x5408;&#x4E8C;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#23-组合三"><span class="toc-nav-number">2.3.</span> <span class="toc-nav-text">2.3&#x3001;&#x7EC4;&#x5408;&#x4E09;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#24-组合四"><span class="toc-nav-number">2.4.</span> <span class="toc-nav-text">2.4&#x3001;&#x7EC4;&#x5408;&#x56DB;</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#25-组合五"><span class="toc-nav-number">2.5.</span> <span class="toc-nav-text">2.5&#x3001;&#x7EC4;&#x5408;&#x4E94;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-es数据库操作命令"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;ES&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x547D;&#x4EE4;</span></a></li></ol>
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-基础环境说明"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">1&#x3001;&#x57FA;&#x7840;&#x73AF;&#x5883;&#x8BF4;&#x660E;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-下载istio"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">2&#x3001;&#x4E0B;&#x8F7D;istio</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-添加环境变量"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">3&#x3001;&#x6DFB;&#x52A0;&#x73AF;&#x5883;&#x53D8;&#x91CF;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-安装crd"><span class="toc-nav-number">4.</span> <span class="toc-nav-text">4&#x3001;&#x5B89;&#x88C5;CRD</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5-安装istio"><span class="toc-nav-number">5.</span> <span class="toc-nav-text">5&#x3001;&#x5B89;&#x88C5;istio</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6-检查安装结果"><span class="toc-nav-number">6.</span> <span class="toc-nav-text">6&#x3001;&#x68C0;&#x67E5;&#x5B89;&#x88C5;&#x7ED3;&#x679C;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7-注入envoy容器"><span class="toc-nav-number">7.</span> <span class="toc-nav-text">7&#x3001;&#x6CE8;&#x5165;Envoy&#x5BB9;&#x5668;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#8-为default命名空间打上-istio-injectionenabled-标签"><span class="toc-nav-number">8.</span> <span class="toc-nav-text">8&#x3001;&#x4E3A;default&#x547D;&#x540D;&#x7A7A;&#x95F4;&#x6253;&#x4E0A; istio-injection=enabled &#x6807;&#x7B7E;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#9-部署demo服务"><span class="toc-nav-number">9.</span> <span class="toc-nav-text">9&#x3001;&#x90E8;&#x7F72;demo&#x670D;&#x52A1;</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#10-检查注入-envoy-容器的应用"><span class="toc-nav-number">10.</span> <span class="toc-nav-text">10&#x3001;&#x68C0;&#x67E5;&#x6CE8;&#x5165; Envoy &#x5BB9;&#x5668;&#x7684;&#x5E94;&#x7528;</span></a></li></ol>
         
         </div>
       </aside>
@@ -348,7 +338,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#ELK" title="ELK">ELK</a>
+                          <a class="tag" href="/tags/#Istio" title="Istio">Istio</a>
                         
                     </div>
                 </section>

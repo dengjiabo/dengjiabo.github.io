@@ -134,13 +134,6 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
-                        </li>
-                        
-                    
-
-                        
-                        <li>
                             <a href="/about/">About</a>
                         </li>
                         
@@ -149,6 +142,13 @@
                         
                         <li>
                             <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -208,6 +208,44 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/技术分享/NFS搭建/">
+        <h2 class="post-title">
+            NFS 搭建
+        </h2>
+        <h3 class="post-subtitle">
+            
+        </h3>
+        <div class="post-content-preview">
+            
+在不适用各种云存储的基础上可以在本地搭建NFS作为kubernetes pv存储介质
+
+1、安装
+1yum -y install nfs-utils rpcbind
+2、设置开机启动
+12systemctl start nfssystemctl enable nfs
+3、创建共享路径
+1mkdir /data
+4、为共享路径设置权限
+12vim /etc/exports/data *(rw......
+        </div>
+    </a>
+    
+        <p class="post-meta" style="margin: 10px 0;">
+            Posted by 邓家波 on
+            2019-04-17
+        </p>
+        <div class="tags">
+            
+              <a href="/tags/#NFS" title="NFS">NFS</a>
+            
+        </div>
+    
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -400,16 +438,17 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes命令集合/">
+    <a href="/技术分享/kubernetes核心服务/">
         <h2 class="post-title">
-            kubernetes命令集合
+            kubernetes核心服务
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、获取kubernetes资源
-12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
+            1、ETCD （主节点）
+  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
+（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
         </div>
     </a>
     
@@ -429,17 +468,16 @@
 
 <div class="post-preview">
 
-    <a href="/技术分享/kubernetes核心服务/">
+    <a href="/技术分享/kubernetes命令集合/">
         <h2 class="post-title">
-            kubernetes核心服务
+            kubernetes命令集合
         </h2>
         <h3 class="post-subtitle">
             
         </h3>
         <div class="post-content-preview">
-            1、ETCD （主节点）
-  kubernetes需要存储很多东西，像它本身的节点信息，组件信息，还有通过kubernetes运行的pod，deployment，service等等。都需要持久化。etcd就是它的数据中心。生产环境中为了保证数据中心的高可用和数据的一致性，一般会部署最少三个节点。
-（1）、api server是和etcd通信的唯一组件。所有其他组件通过api server间接......
+            1、获取kubernetes资源
+12345678910111213141516171819202122232425#获取当前的pods、deployment、rc等，任何资源都可以通过get命令进行查询kubectl get pods -n namespaceskubectl get deployment -n namespaces#获取所有资源，不限命令空间kubectl get pod......
         </div>
     </a>
     
@@ -478,43 +516,6 @@
         <p class="post-meta" style="margin: 10px 0;">
             Posted by 邓家波 on
             2019-04-16
-        </p>
-        <div class="tags">
-            
-              <a href="/tags/#docker" title="docker">docker</a>
-            
-        </div>
-    
-
-</div>
-<hr>
-
-<div class="post-preview">
-
-    <a href="/技术分享/docker数据持久化/">
-        <h2 class="post-title">
-            docker数据持久化
-        </h2>
-        <h3 class="post-subtitle">
-            
-        </h3>
-        <div class="post-content-preview">
-            1、持久化方法一：使用docker volume完成持久化
-
-Type: volume
-
-1.1、新建volume
-1docker volume create devtest     --devtest是卷名称
-1.2、获取volume
-1docker volume ls                   --查看服务器中的所有卷
-1.3、查看volume基本信息
-1docker volu......
-        </div>
-    </a>
-    
-        <p class="post-meta" style="margin: 10px 0;">
-            Posted by 邓家波 on
-            2019-04-15
         </p>
         <div class="tags">
             
@@ -571,13 +572,17 @@ Type: volume
     <div class="tags">
         
             
+            <a href="/tags/#Istio" title="Istio" rel="2">Istio</a>
+            
+        
+            
             <a href="/tags/#ELK" title="ELK" rel="2">ELK</a>
             
         
             
-        
-            
             <a href="/tags/#docker" title="docker" rel="6">docker</a>
+            
+        
             
         
             
@@ -678,7 +683,7 @@ Type: volume
         
     <h5>ARCHIVES</h5>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">18</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">19</span></li></ul>
     </div>
 
         <hr>
@@ -687,7 +692,7 @@ Type: volume
 
     <h5>categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">25</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/技术分享/">技术分享</a><span class="category-list-count">27</span></li></ul>
     </div>
 
         <hr>
